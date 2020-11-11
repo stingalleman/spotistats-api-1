@@ -17,6 +17,11 @@ const UserSchema = new Schema({
     accessTokenExpiration: Date,
     refreshToken: String,
   },
+  playlists: {
+    short_term: String,
+    medium_term: String,
+    long_term: String,
+  },
   disabled: Boolean,
 }, { timestamps: true });
 

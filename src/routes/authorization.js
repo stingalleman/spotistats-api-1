@@ -8,12 +8,16 @@ const { resetSpotifyApiTokens } = require('../utils/spotify-api.utils');
 const authRouter = Router();
 
 const scopes = [
-  'user-read-private',
-  'user-read-email',
   'user-read-recently-played',
-  'user-read-playback-position',
-  'user-read-currently-playing',
+  'user-top-read',
+  'playlist-modify-public',
+  'playlist-modify-private',
+  'playlist-read-private',
+  'playlist-read-collaborative',
   'user-follow-read',
+  'user-library-read',
+  'user-read-email',
+  'user-read-private',
 ];
 const redirectUri = process.env.SPOTIFY_AUTH_CALLBACK_URL;
 const clientId = process.env.SPOTIFY_CLIENT_ID;

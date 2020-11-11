@@ -1,24 +1,14 @@
-/* eslint-disable */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 const User = require('../models/user.model');
 const UserStream = require('../models/user-stream.model');
 const { getUserSpotifyApi, resetSpotifyApiTokens } = require('../utils/spotify-api.utils');
 
 const scraper = async () => {
   try {
-    console.time('scraper');
+    console.time('⏱  Scraper');
     const users = await User.find({ disabled: false });
 
-    // const users2 = [
-    //   ...users, ...users, ...users, ...users, ...users, ...users, ...users,
-    //   ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users,
-    //   ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users,
-    //   ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users,
-    //   ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users,
-    //   ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users,
-    //   ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users, ...users,
-    //   ...users, ...users, ...users];
-
-    // await Promise.all(users2.map(async (user, i) => {
     for (const user of users) {
       const spotifyApi = await getUserSpotifyApi(user.id);
 
@@ -26,7 +16,7 @@ const scraper = async () => {
         limit: 50,
       })).body.items;
 
-      await Promise.all(recentlyPlayed.map(async (track) => {
+      for (const track of recentlyPlayed) {
         UserStream.findOne({
           userId: user.id,
           'track.id': track.track.id,
@@ -62,15 +52,15 @@ const scraper = async () => {
             await userStream.save();
           }
         });
+      }
 
-        await resetSpotifyApiTokens(spotifyApi);
-      }));
+      await resetSpotifyApiTokens(spotifyApi);
     }
     // }));
   } catch (err) {
     console.error(err);
   }
-  console.timeEnd('scraper');
+  console.timeEnd('⏱  Scraper');
 };
 
 module.exports = scraper;

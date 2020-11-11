@@ -8,6 +8,7 @@ const authRouter = require('./routes/authorization');
 const historyRouter = require('./routes/user-stream');
 
 const scraper = require('./services/scraper');
+const playlistSync = require('./services/playlist-sync');
 
 const router = async () => {
   const app = express();
@@ -15,33 +16,34 @@ const router = async () => {
   app.use(cors())
     .use('/api/auth', authRouter)
     .use('/api/user', historyRouter)
-    .listen(port, () => console.log(`Spotistats API server running on port ${port}`));
+    .listen(port, () => console.info(`👋 Server running (${port})`));
 };
 
 const database = async () => {
-  mongoose.connect(process.env.DB_URI, {
+  await mongoose.connect(process.env.DB_URI, {
     auth: { user: process.env.DB_USER, password: process.env.DB_PASS },
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
   });
+  console.info('🎉 Database connected');
 };
 
-// run scraper() every hour
+/// run scraper() every hour
 schedule.scheduleJob('0 */1 * * *', async () => {
   await scraper();
 });
 
-// run playlistSync() every day
-// schedule.scheduleJob("0 0 * * *", async _ => {
-//   await playlistSync();
-// });
+/// run playlistSync() every day
+schedule.scheduleJob('0 0 * * *', async () => {
+  await playlistSync();
+});
 
 const bootstrap = async () => {
   await database();
   await router();
   await scraper();
-  // await playlistSync();
+  await playlistSync();
 };
 
 bootstrap();
