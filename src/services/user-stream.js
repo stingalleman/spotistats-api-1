@@ -55,8 +55,6 @@ function getStreams(userId, item) {
         }
       }
 
-      console.log(query);
-
       UserStreams.find(query).then(
         (historyFound) => {
           resolve(historyFound);
