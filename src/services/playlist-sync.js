@@ -82,7 +82,9 @@ const playlistSync = async () => {
         );
       }
 
-      await spotifyApi.addTracksToPlaylist(playlist.id, topTracks.map((track) => track.uri));
+      if (topTracks && topTracks.length > 0) {
+        await spotifyApi.addTracksToPlaylist(playlist.id, topTracks.map((track) => track.uri));
+      }
 
       await resetSpotifyApiTokens(spotifyApi);
     } catch (err) {
