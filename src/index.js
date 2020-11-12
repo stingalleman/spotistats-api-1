@@ -28,7 +28,7 @@ const router = async () => {
       graphiql: true,
     }))
     .use('/*', staticRouter)
-    .listen(port, () => console.info(`👋 Server running (${port})`));
+    .listen(port, () => console.info(`(${new Date().toLocaleTimeString()}) 👋 Server running (${port})`));
 };
 
 const database = async () => {
@@ -38,7 +38,7 @@ const database = async () => {
     useUnifiedTopology: true,
     useCreateIndex: true,
   });
-  console.info('🎉 Database connected');
+  console.info(`(${new Date().toLocaleTimeString()}) 🎉 Database connected`);
 };
 
 /// run scraper() every hour

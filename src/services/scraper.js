@@ -46,7 +46,7 @@ const parseStream = async (user, track) => {
 };
 
 const scraper = async () => {
-  const consoleString = `⏱  Scraper (${new Date().toLocaleTimeString()})`;
+  const consoleString = `(${new Date().toLocaleTimeString()}) ⏱  Scraper       `;
   try {
     console.time(consoleString);
     const users = await User.find({ disabled: false });

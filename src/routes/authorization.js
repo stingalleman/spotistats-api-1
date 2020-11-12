@@ -30,12 +30,20 @@ const spotifyApi = new SpotifyWebApi({
   clientId,
 });
 
-authRouter.get('/spotify-auth', (req, res) => {
+const getAuthorizeURL = () => {
   // TODO make state depend on the request. Maybe a hash of a cookie or something?
   const state = 'spotify_auth_state';
-  // Create the authorization URL
-  const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
+  // Return the authorization URL
+  return spotifyApi.createAuthorizeURL(scopes, state);
+};
 
+authRouter.get('/spotify-redirect', (req, res) => {
+  const authorizeURL = getAuthorizeURL();
+  res.redirect(301, authorizeURL);
+});
+
+authRouter.get('/spotify-auth', (req, res) => {
+  const authorizeURL = getAuthorizeURL();
   res.send({ authUrl: authorizeURL });
 });
 
