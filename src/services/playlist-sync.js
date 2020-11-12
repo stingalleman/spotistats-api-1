@@ -60,7 +60,7 @@ const playlistSync = async () => {
 
       if (playlist === null || playlist === undefined) {
         playlist = await createPlaylist(spotifyApi, {
-          name: `${user.id}'s Top Tracks - Past 4 weeks`,
+          name: `${user.displayName || user.display_name}'s Top Tracks - Past 4 weeks`,
           description,
           public: true,
           collaborative: false,
