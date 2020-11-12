@@ -22,7 +22,9 @@ const UserSchema = new Schema({
     medium_term: String,
     long_term: String,
   },
+  total_ms: Number,
   disabled: Boolean,
+  is_plus: Boolean,
 }, { timestamps: true });
 
 function isDateExpired(date) {

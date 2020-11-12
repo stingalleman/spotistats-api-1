@@ -50,7 +50,7 @@ const playlistSync = async () => {
       //                      Last sync: ${lastSync} (${topTracks.length}/50 tracks available)`;
       const description = 'Created and synced through Spotistats App for Android and iOS.';
       let playlist = null;
-      if (user.playlists.short_term !== null) {
+      if (user.playlists.short_term !== null && user.playlists.short_term !== undefined) {
         try {
           playlist = (await spotifyApi.getPlaylist(user.playlists.short_term)).body;
         } catch (e) {
@@ -59,7 +59,7 @@ const playlistSync = async () => {
       }
 
       if (playlist === null || playlist === undefined) {
-        playlist = createPlaylist(spotifyApi, {
+        playlist = await createPlaylist(spotifyApi, {
           name: `${user.id}'s Top Tracks - Past 4 weeks`,
           description,
           public: true,
@@ -74,7 +74,7 @@ const playlistSync = async () => {
         spotifyApi.followPlaylist(playlist.id);
       }
 
-      if (playlist.tracks.items !== undefined && playlist.tracks.items.length > 0) {
+      if (playlist.tracks && playlist.tracks.items && playlist.tracks.items.length > 0) {
         await removeTracksFromPlaylist(
           spotifyApi,
           playlist.id,
