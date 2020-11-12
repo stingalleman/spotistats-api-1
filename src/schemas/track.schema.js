@@ -16,7 +16,7 @@ const TrackType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
-    duration_ms: { type: GraphQLInt },
+    durationMs: { type: GraphQLInt },
     trackNumber: { type: GraphQLInt },
     artists: {
       type: new GraphQLList(ArtistType),

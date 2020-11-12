@@ -15,8 +15,8 @@ const AlbumType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
-    release_date: { type: GraphQLString },
-    total_tracks: { type: GraphQLInt },
+    releaseDate: { type: GraphQLString },
+    totalTracks: { type: GraphQLInt },
     artists: {
       type: new GraphQLList(ArtistType),
       // resolve(parent, args) {

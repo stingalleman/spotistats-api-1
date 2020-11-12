@@ -8,6 +8,8 @@ const {
   GraphQLObjectType,
   GraphQLList,
   GraphQLString,
+  GraphQLBoolean,
+  GraphQLInt,
 } = GraphQL;
 
 const CurrentPlayType = require('./current-play.schema');
@@ -26,6 +28,15 @@ const UserType = new GraphQLObjectType({
       },
     },
     displayName: { type: GraphQLString },
+    totalMs: { type: GraphQLInt },
+    disabled: { type: GraphQLBoolean },
+    isPlus: { type: GraphQLBoolean },
+    // playlists: {
+    //   type: GraphQLObjectType,
+    //   shortTerm: { type: GraphQLString },
+    //   mediumTerm: { type: GraphQLString },
+    //   longTerm: { type: GraphQLString },
+    // },
     recentlyPlayed: {
       type: new GraphQLList(PlayType),
       resolve(parent) {

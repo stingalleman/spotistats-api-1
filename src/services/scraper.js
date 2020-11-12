@@ -19,21 +19,21 @@ const parseStream = async (user, track) => {
       track: {
         id: track.track.id,
         name: track.track.name,
-        duration_ms: track.track.duration_ms,
+        durationMs: track.track.duration_ms,
         album: track.track.album.id,
         artists: track.track.artists.map((artist) => (artist.id)),
       },
       plays: [{
-        played_at: new Date(track.played_at),
-        context: hasContext ? track.context.uri : null,
+        playedAt: new Date(track.played_at),
+        context: hasContext ? track.context.uri.split(':')[2] : null,
       }],
     });
   } else if (
-    userStream.plays.find((play) => play.played_at === track.played_at) === undefined
+    userStream.plays.find((play) => play.playedAt === new Date(track.played_at)) === undefined
   ) {
     userStream.plays.push({
-      played_at: track.played_at,
-      context: hasContext ? track.context.uri : null,
+      playedAt: new Date(track.played_at),
+      context: hasContext ? track.context.uri.split(':')[2] : null,
     });
   }
 
@@ -56,14 +56,14 @@ const scraper = async () => {
         limit: 50,
       })).body.items;
 
-      if (typeof user.total_ms !== 'number') {
-        user.total_ms = 0;
+      if (typeof user.totalMs !== 'number') {
+        user.totalMs = 0;
       }
 
       const promises = recentlyPlayed.map((track) => parseStream(user, track));
       const values = (await Promise.all(promises));
 
-      user.total_ms += values.reduce((a, b) => a + b);
+      user.totalMs += values.reduce((a, b) => a + b);
 
       await user.save();
 

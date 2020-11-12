@@ -14,7 +14,7 @@ const PlayType = new GraphQLObjectType({
   name: 'play',
   fields: () => ({
     track: { type: TrackType },
-    played_at: { type: GraphQLString },
+    playedAt: { type: GraphQLString },
   }),
 });
 

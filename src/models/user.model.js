@@ -18,14 +18,14 @@ const UserSchema = new Schema({
     refreshToken: String,
   },
   playlists: {
-    short_term: String,
-    medium_term: String,
-    long_term: String,
+    shortTerm: String,
+    mediumTerm: String,
+    longTerm: String,
   },
-  total_ms: Number,
+  totalMs: Number,
   disabled: Boolean,
-  is_plus: Boolean,
-}, { timestamps: true });
+  isPlus: Boolean,
+}, { timestamps: false });
 
 function isDateExpired(date) {
   return date.getTime() <= Date.now();

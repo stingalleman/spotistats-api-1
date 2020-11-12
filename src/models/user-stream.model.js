@@ -10,14 +10,14 @@ const UserStreamSchema = new Schema({
   track: {
     id: String,
     name: String,
-    duration_ms: Number,
+    durationMs: Number,
     album: String,
     artists: [
       String,
     ],
   },
   plays: [{
-    played_at: Date,
+    playedAt: Date,
     context: String,
   }],
 }, { timestamps: false });

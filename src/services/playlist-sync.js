@@ -35,7 +35,7 @@ const removeTracksFromPlaylist = async (spotifyApi, playlistId, tracks) => {
 
 const playlistSync = async () => {
   console.time('⏱  Playlist Sync');
-  const users = await User.find({ disabled: false }); // , is_plus: true
+  const users = await User.find({ disabled: false }); // , isPlus: true
 
   for (const user of users) {
     try {
@@ -48,11 +48,11 @@ const playlistSync = async () => {
       // const lastSync = new Date().toUTCString();
       // const description = `Created and synced through Spotistats App for Android and iOS.
       //                      Last sync: ${lastSync} (${topTracks.length}/50 tracks available)`;
-      const description = 'Created and synced through Spotistats App for Android and iOS.';
+      const description = 'Created and synced through Spotistats App for Android and iOS 💚';
       let playlist = null;
-      if (user.playlists.short_term !== null && user.playlists.short_term !== undefined) {
+      if (user.playlists.shortTerm !== null && user.playlists.shortTerm !== undefined) {
         try {
-          playlist = (await spotifyApi.getPlaylist(user.playlists.short_term)).body;
+          playlist = (await spotifyApi.getPlaylist(user.playlists.shortTerm)).body;
         } catch (e) {
           playlist = null;
         }
@@ -66,7 +66,7 @@ const playlistSync = async () => {
           collaborative: false,
         });
 
-        user.playlists.short_term = playlist.id;
+        user.playlists.shortTerm = playlist.id;
 
         await user.save();
       } else {

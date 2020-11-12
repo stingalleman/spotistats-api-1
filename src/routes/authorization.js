@@ -70,6 +70,8 @@ authRouter.get('/spotify-callback', (req, res) => {
                   _id: userId,
                   displayName: userData.body.display_name,
                   disabled: false,
+                  isPlus: true,
+                  totalMs: 0,
                 });
               }
 

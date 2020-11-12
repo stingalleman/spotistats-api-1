@@ -15,8 +15,8 @@ const CurrentPlayType = new GraphQLObjectType({
   name: 'currentPlay',
   fields: () => ({
     item: { type: TrackType },
-    is_playing: { type: GraphQLBoolean },
-    played_at: { type: GraphQLString },
+    isPlaying: { type: GraphQLBoolean },
+    playedAt: { type: GraphQLString },
   }),
 });
 

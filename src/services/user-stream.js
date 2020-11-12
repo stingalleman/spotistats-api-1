@@ -48,7 +48,7 @@ function getStreams(userId, item) {
             query['track.album'] = item[type];
             break;
           case 'context':
-            query.context = item[type];
+            query['plays.context'] = { $in: [item[type]] };
             break;
           default:
             break;
