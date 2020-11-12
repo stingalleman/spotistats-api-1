@@ -3,6 +3,7 @@ const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const schedule = require('node-schedule');
+const robots = require('express-robots-txt');
 const { graphqlHTTP } = require('express-graphql');
 
 const Schema = require('./schemas/schema');
@@ -17,7 +18,9 @@ const playlistSync = require('./services/playlist-sync');
 const router = async () => {
   const app = express();
   const port = process.env.PORT || 8080;
-  app.use(cors())
+  app
+    .use(cors())
+    .use(robots({ UserAgent: '*', Disallow: '/' }))
     .use('/api/auth', authRouter)
     .use('/api/user', historyRouter)
     .use('/api/graphql', graphqlHTTP({
