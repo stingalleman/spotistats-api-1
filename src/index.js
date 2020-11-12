@@ -9,6 +9,7 @@ const Schema = require('./schemas/schema');
 
 const authRouter = require('./routes/authorization');
 const historyRouter = require('./routes/user-stream');
+const staticRouter = require('./routes/static');
 
 const scraper = require('./services/scraper');
 const playlistSync = require('./services/playlist-sync');
@@ -23,6 +24,7 @@ const router = async () => {
       schema: Schema,
       graphiql: true,
     }))
+    .use('/*', staticRouter)
     .listen(port, () => console.info(`👋 Server running (${port})`));
 };
 
