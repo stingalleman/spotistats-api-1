@@ -35,7 +35,7 @@ const removeTracksFromPlaylist = async (spotifyApi, playlistId, tracks) => {
 
 const playlistSync = async () => {
   console.time('⏱  Playlist Sync');
-  const users = await User.find({ disabled: false, _id: 'sjoerdgaatwakawaka' });
+  const users = await User.find({ disabled: false }); // , is_plus: true
 
   for (const user of users) {
     try {
