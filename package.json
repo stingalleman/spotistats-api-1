@@ -1,7 +1,7 @@
 {
   "name": "spotistats-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "The official API for the Spotistats app (Android + iOS) 💚",
   "main": "src/index.js",
   "scripts": {
     "eslint": "eslint",

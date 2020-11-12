@@ -29,7 +29,8 @@ const parseStream = async (user, track) => {
       }],
     });
   } else if (
-    userStream.plays.find((play) => play.playedAt === new Date(track.played_at)) === undefined
+    userStream.plays.find((play) => play.playedAt.getTime()
+      === new Date(track.played_at).getTime()) === undefined
   ) {
     userStream.plays.push({
       playedAt: new Date(track.played_at),
@@ -45,8 +46,9 @@ const parseStream = async (user, track) => {
 };
 
 const scraper = async () => {
+  const consoleString = `⏱  Scraper (${new Date().toLocaleTimeString()})`;
   try {
-    console.time('⏱  Scraper');
+    console.time(consoleString);
     const users = await User.find({ disabled: false });
 
     for (const user of users) {
@@ -71,9 +73,9 @@ const scraper = async () => {
     }
     // }));
   } catch (err) {
-    console.error(err);
+    // console.error(err);
   }
-  console.timeEnd('⏱  Scraper');
+  console.timeEnd(consoleString);
 };
 
 module.exports = scraper;

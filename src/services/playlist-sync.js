@@ -34,7 +34,8 @@ const removeTracksFromPlaylist = async (spotifyApi, playlistId, tracks) => {
 };
 
 const playlistSync = async () => {
-  console.time('⏱  Playlist Sync');
+  const consoleString = `⏱  Playlist Sync (${new Date().toLocaleTimeString()})`;
+  console.time(consoleString);
   const users = await User.find({ disabled: false }); // , isPlus: true
 
   for (const user of users) {
@@ -88,10 +89,10 @@ const playlistSync = async () => {
 
       await resetSpotifyApiTokens(spotifyApi);
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   }
-  console.timeEnd('⏱  Playlist Sync');
+  console.timeEnd(consoleString);
 };
 
 module.exports = playlistSync;
