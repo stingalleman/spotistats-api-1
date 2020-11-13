@@ -8,6 +8,8 @@ const { graphqlHTTP } = require('express-graphql');
 
 const Schema = require('./schemas/schema');
 
+const auth = require('./middleware/auth');
+
 const authRouter = require('./routes/authorization');
 const historyRouter = require('./routes/user-stream');
 const staticRouter = require('./routes/static');
@@ -22,8 +24,8 @@ const router = async () => {
     .use(cors())
     .use(robots({ UserAgent: '*', Disallow: '/' }))
     .use('/api/auth', authRouter)
-    .use('/api/user', historyRouter)
-    .use('/api/graphql', graphqlHTTP({
+    .use('/api/user', auth, historyRouter)
+    .use('/api/graphql', auth, graphqlHTTP({
       schema: Schema,
       graphiql: true,
     }))
