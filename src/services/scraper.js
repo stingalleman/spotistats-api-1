@@ -1,48 +1,68 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 const User = require('../models/user.model');
-const UserStream = require('../models/user-stream.model');
+const Stream = require('../models/stream.model');
+const Track = require('../models/track.model');
 const { getUserSpotifyApi, resetSpotifyApiTokens } = require('../utils/spotify-api.utils');
 
-const parseStream = async (user, track) => {
-  const dbtrack = await UserStream.findOne({
-    userId: user.id,
-    'track.id': track.track.id,
-  });
+const parseStream = async (user, play) => {
+  try {
+    const dbtrack = await Track.findOne({
+      trackId: play.track.id,
+    });
+    let track = dbtrack;
 
-  let userStream = dbtrack;
-  const hasContext = track.context !== null && typeof track.context.uri === 'string';
+    if (dbtrack === null) {
+      track = new Track({
+        trackId: play.track.id,
+        name: play.track.id,
+        durationMs: play.track.duration_ms,
+        albumId: play.track.album.id,
+        // images: play.track.images.map((image) => (image.url)),
+        explicit: play.track.explicit,
+        artistIds: play.track.artists.map((artist) => (artist.id)),
+      });
+      await track.save();
+    }
 
-  if (dbtrack == null) {
-    userStream = new UserStream({
+    const dbstream = await Stream.findOne({
       userId: user.id,
-      track: {
-        id: track.track.id,
-        name: track.track.name,
-        durationMs: track.track.duration_ms,
-        album: track.track.album.id,
-        artists: track.track.artists.map((artist) => (artist.id)),
-      },
-      plays: [{
-        playedAt: new Date(track.played_at),
-        context: hasContext ? track.context.uri.split(':')[2] : null,
-      }],
+      track,
     });
-  } else if (
-    userStream.plays.find((play) => play.playedAt.getTime()
-      === new Date(track.played_at).getTime()) === undefined
-  ) {
-    userStream.plays.push({
-      playedAt: new Date(track.played_at),
-      context: hasContext ? track.context.uri.split(':')[2] : null,
-    });
-  }
+    let stream = dbstream;
 
-  if (userStream !== dbtrack) {
-    await userStream.save();
-    return track.track.duration_ms;
+    const hasContext = play.context !== null && typeof play.context.uri === 'string';
+
+    if (dbstream == null) {
+      stream = new Stream({
+        userId: user.id,
+        track,
+        streamCount: 1,
+        streams: [{
+          playedAt: new Date(play.played_at),
+          context: hasContext ? play.context.uri.split(':')[2] : null,
+        }],
+      });
+    } else if (
+      stream.streams.find((item) => item.playedAt.getTime()
+        === new Date(play.played_at).getTime()) === undefined
+    ) {
+      stream.streamCount += 1;
+      stream.streams.push({
+        playedAt: new Date(play.played_at),
+        context: hasContext ? play.context.uri.split(':')[2] : null,
+      });
+    }
+
+    if (stream !== dbstream) {
+      await stream.save();
+      return play.track.duration_ms;
+    }
+    return 0;
+  } catch (e) {
+    console.error(e);
+    return 0;
   }
-  return 0;
 };
 
 const scraper = async () => {

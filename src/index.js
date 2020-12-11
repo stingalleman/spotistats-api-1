@@ -11,7 +11,7 @@ const Schema = require('./schemas/schema');
 const auth = require('./middleware/auth');
 
 const authRouter = require('./routes/authorization');
-const historyRouter = require('./routes/user-stream');
+const historyRouter = require('./routes/streams');
 const staticRouter = require('./routes/static');
 
 const scraper = require('./services/scraper');
@@ -43,19 +43,23 @@ const database = async () => {
   console.info(`(${new Date().toLocaleTimeString()}) 🎉 Database connected`);
 };
 
-/// run scraper() every hour
-schedule.scheduleJob('0 */1 * * *', async () => {
-  await scraper();
-});
+const cron = async () => {
+  /// run scraper() every hour
+  schedule.scheduleJob('0 */1 * * *', async () => {
+    await scraper();
+  });
 
-/// run playlistSync() every day
-schedule.scheduleJob('0 0 * * *', async () => {
-  await playlistSync();
-});
+  /// run playlistSync() every day
+  schedule.scheduleJob('0 0 * * *', async () => {
+    await playlistSync();
+  });
+  console.info(`(${new Date().toLocaleTimeString()}) 🙃 Crons configured`);
+};
 
 const bootstrap = async () => {
   await database();
   await router();
+  await cron();
   await scraper();
   await playlistSync();
 };

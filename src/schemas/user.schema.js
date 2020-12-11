@@ -1,7 +1,7 @@
 const GraphQL = require('graphql');
 
 const PlayType = require('./play.schema');
-const { getPlayHistory, getRecentlyPlayedTracks, getCurrentlyPlayingTrack } = require('../services/user-stream');
+const { getPlayHistory, getRecentlyPlayedTracks, getCurrentlyPlayingTrack } = require('../services/endpoints/streams');
 
 const {
   GraphQLID,

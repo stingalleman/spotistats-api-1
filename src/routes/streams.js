@@ -1,6 +1,6 @@
 const { Router } = require('express');
 // const { getUserSpotifyApi, resetSpotifyApiTokens } = require('../utils/spotify-api.utils');
-const { getStreams } = require('../services/user-stream');
+const { getStreams } = require('../services/endpoints/streams');
 
 const router = Router();
 

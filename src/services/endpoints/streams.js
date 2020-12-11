@@ -1,5 +1,5 @@
-const { getUserSpotifyApi, resetSpotifyApiTokens } = require('../utils/spotify-api.utils');
-const UserStreams = require('../models/user-stream.model');
+const { getUserSpotifyApi, resetSpotifyApiTokens } = require('../../utils/spotify-api.utils');
+const Stream = require('../../models/stream.model');
 
 /**
  * Gets the recently played tracks from the spotify api
@@ -26,15 +26,16 @@ function getRecentlyPlayedTracks(userId) {
 }
 
 /**
- * Returns the play history of a given user
+ * Returns the stream history of a given user
  * @param {String} userId id of user
+ * @param {Object<String, String>} item type (key) and id (value) for the query
  * @returns {Promise<Streams>} promise with play history
  */
 function getStreams(userId, item) {
   return new Promise(
+    // eslint-disable-next-line no-unused-vars
     (resolve, reject) => {
       const query = { userId };
-
       if (item !== undefined) {
         const type = Object.keys(item)[0];
         switch (type) {
@@ -55,7 +56,7 @@ function getStreams(userId, item) {
         }
       }
 
-      UserStreams.find(query).then(
+      Stream.find(query).then(
         (historyFound) => {
           resolve(historyFound);
         },

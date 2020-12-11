@@ -24,6 +24,7 @@ const UserSchema = new Schema({
   },
   totalMs: Number,
   disabled: Boolean,
+  playlistEnabled: Boolean,
   isPlus: Boolean,
 }, { timestamps: false });
 
