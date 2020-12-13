@@ -1,21 +1,32 @@
 import "reflect-metadata";
-import {createConnection} from "typeorm";
-import {User} from "./entity/User";
 
-createConnection().then(async connection => {
+// import schedule from "node-schedule";
 
-    console.log("Inserting a new user into the database...");
-    const user = new User();
-    user.firstName = "Timber";
-    user.lastName = "Saw";
-    user.age = 25;
-    await connection.manager.save(user);
-    console.log("Saved a new user with id: " + user.id);
+import * as dotenv from "dotenv";
+dotenv.config();
 
-    console.log("Loading users from the database...");
-    const users = await connection.manager.find(User);
-    console.log("Loaded users: ", users);
+import database from "./core/Database";
+import router from "./core/Router";
+// import playlistSync from "./core/PlaylistSync";
+import scraper from "./core/Scraper";
+import importData from "./core/ImportData";
 
-    console.log("Here you can setup and run express/koa/any other framework.");
+const bootstrap = async (): Promise<void> => {
+  await database();
+  await router();
+  await scraper();
+  // await importData("sjoerdgaatwakawaka");
+  // await playlistSync();
+};
 
-}).catch(error => console.log(error));
+bootstrap();
+
+// // run scraper() every hour
+// schedule.scheduleJob("0 */1 * * *", async () => {
+//   await scraper();
+// });
+
+// // run playlistSync() every day
+// schedule.scheduleJob("0 0 * * *", async () => {
+//   await playlistSync();
+// });

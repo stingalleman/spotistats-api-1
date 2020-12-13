@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
-const Stream_1 = require("./Stream");
+const UserSettings_1 = require("./UserSettings");
 let User = class User extends typeorm_1.BaseEntity {
 };
 __decorate([
@@ -21,18 +21,22 @@ __decorate([
 __decorate([
     typeorm_1.Column("text", { nullable: false }),
     __metadata("design:type", String)
-], User.prototype, "refreshToken", void 0);
+], User.prototype, "displayName", void 0);
 __decorate([
-    typeorm_1.Column("text", { nullable: true }),
-    __metadata("design:type", String)
-], User.prototype, "playlistId", void 0);
+    typeorm_1.Column("bigint", { nullable: false, default: 0 }),
+    __metadata("design:type", typeof BigInt === "function" ? BigInt : Object)
+], User.prototype, "totalSeconds", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Stream_1.Stream, stream => stream.user, { eager: true, nullable: true }),
-    __metadata("design:type", Array)
-], User.prototype, "streams", void 0);
+    typeorm_1.Column("boolean", { nullable: false, default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "disabled", void 0);
 __decorate([
-    typeorm_1.Column("jsonb", { nullable: false }),
-    __metadata("design:type", Object)
+    typeorm_1.OneToOne(() => UserSettings_1.UserSettings, (userSettings) => userSettings.refreshToken, {
+        cascade: true,
+        eager: true,
+    }),
+    typeorm_1.JoinColumn({ name: "settings" }),
+    __metadata("design:type", UserSettings_1.UserSettings)
 ], User.prototype, "settings", void 0);
 User = __decorate([
     typeorm_1.Entity("users")

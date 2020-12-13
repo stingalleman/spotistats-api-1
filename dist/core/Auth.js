@@ -1,43 +1,24 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sjoerdAuthAlgo = void 0;
-const Logger_1 = require("../misc/Logger");
-function sjoerdAuthAlgo(req) {
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const jwtSecret = process.env.JWT_SECRET;
+module.exports = (req, res, next) => {
     try {
-        const authKey = new Netbob64().decrypt(String(req.header("Authorization")));
-        return authKey === req.params.userID;
-    }
-    catch (err) {
-        Logger_1.errorLogger("auth error", err);
-    }
-}
-exports.sjoerdAuthAlgo = sjoerdAuthAlgo;
-/**
- * SUPER SECRET NETBOB64 AUTHENTICATION
- *
- * COPRYIGHT NETLOB © 2020
- */
-class Netbob64 {
-    constructor() {
-        this.PADCHAR = "ey";
-        this.ALPHA = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    }
-    encrypt(a) {
-        const c = [];
-        for (let d = 0; d < a.length; d++) {
-            const e = this.ALPHA.indexOf(a.charAt(d));
-            if (a.charAt(d) === " ")
-                c.push("00");
-            else if (e < 10)
-                c.push(`${e}a`);
-            else
-                c.push(String(e).substring(0, 1) + this.ALPHA.charAt(Number(String(Number(e + 10)).substring(1, 2)) + 10));
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jsonwebtoken_1.default.verify(token, jwtSecret);
+        const { userId } = decodedToken;
+        if (req.params.userId && req.params.userId !== userId) {
+            throw Error();
         }
-        return this.PADCHAR + c.join("");
+        else {
+            next();
+        }
     }
-    decrypt(a) {
-        a = a.substr(2).match(/.{2}/g).map(d => d === "00" ? " " : this.ALPHA.charAt(Number(String(d.charAt(0)) + String(Number(this.ALPHA.indexOf(d.charAt(1)) - 10)))));
-        return a.join("");
+    catch (e) {
+        res.status(401).end();
     }
-}
+};
 //# sourceMappingURL=Auth.js.map

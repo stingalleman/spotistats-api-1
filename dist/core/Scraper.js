@@ -1,86 +1,70 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const entities_1 = require("../entities");
-const entities_2 = require("../entities");
-const entities_3 = require("../entities");
-const Spotify_1 = require("../Spotify");
-const Logger_1 = require("../misc/Logger");
-async function scraper() {
+const spotify_api_utils_1 = require("../utils/spotify-api.utils");
+const parseStream = async (user, track) => {
     try {
-        console.time("scraper");
-        Logger_1.infoLogger("starting scrape...");
-        const users = await entities_1.User.find({}); // get all users from DB
-        await Promise.all(users.map(async (user) => {
-            if (user.settings.disabled === true) {
-                // do nothing
+        let stream = await entities_1.Stream.findOne({
+            userId: user.id,
+            // user: user,
+            endTime: track.playedAt,
+        });
+        if (stream === null || stream === undefined) {
+            const hasContext = track.context !== null && typeof track.context.uri === "string";
+            let msPlayed = 0;
+            try {
+                msPlayed = track.msPlayed;
             }
-            else {
-                const accessToken = await Spotify_1.getAccessToken(user.refreshToken, user.id);
-                const recentlyPlayed = await Spotify_1.getRecentlyPlayed(accessToken);
-                await entities_1.User.create({
-                    id: user.id,
-                    settings: {
-                        disabled: false,
-                        error: ""
-                    }
-                }).save();
-                await Promise.all(recentlyPlayed.items.map(async (doc) => {
-                    try {
-                        const songCheck = await entities_2.Song.findOne({ where: { id: doc.track.id } });
-                        if (!songCheck) {
-                            try {
-                                await entities_2.Song.insert({
-                                    id: doc.track.id,
-                                    length: doc.track.duration_ms
-                                });
-                            }
-                            catch (err) {
-                                if (err.message === "duplicate key value violates unique constraint \"PK_e504ce8ad2e291d3a1d8f1ea2f4\"") {
-                                    // do nothing, duplicate
-                                }
-                                else {
-                                    console.log(err);
-                                }
-                            }
-                        }
-                        const streamCheck = await entities_3.Stream.findOne({ where: { song: { id: doc.track.id, length: doc.track.duration_ms }, user: user, timestamp: Date.parse(doc.played_at), } });
-                        if (!streamCheck) {
-                            if (doc.context) { // if stream context exists
-                                await entities_3.Stream.create({
-                                    song: {
-                                        id: doc.track.id,
-                                        length: doc.track.duration_ms
-                                    },
-                                    user: user,
-                                    timestamp: Date.parse(doc.played_at),
-                                    contextID: doc.context.uri.split(":")[2],
-                                    contextType: doc.context.type
-                                }).save();
-                            }
-                            else { // if stream context is null
-                                await entities_3.Stream.create({
-                                    song: {
-                                        id: doc.track.id,
-                                        length: doc.track.duration_ms
-                                    },
-                                    user: user,
-                                    timestamp: Date.parse(doc.played_at)
-                                }).save();
-                            }
-                        }
-                    }
-                    catch (err) {
-                        Logger_1.errorLogger("Error while saving streams to DB", err);
-                    }
-                }));
+            catch (e) { }
+            try {
+                msPlayed = track.track.duration_ms;
             }
-        }));
+            catch (e) { }
+            stream = await entities_1.Stream.create({
+                userId: user.id,
+                // user: user,
+                endTime: new Date(track.played_at),
+                contextId: hasContext ? track.context.uri.split(":")[2] : null,
+                trackName: encodeURI(track.track.name),
+                artistName: encodeURI(track.track.artists[0].name),
+                msPlayed: msPlayed,
+            }).save();
+            return stream.msPlayed;
+        }
+        else {
+            return 0;
+        }
+    }
+    catch (e) {
+        console.error(e);
+        return 0;
+    }
+};
+exports.default = async () => {
+    const consoleString = `(${new Date().toLocaleTimeString()}) ⏱  Scraper       `;
+    try {
+        console.time(consoleString);
+        const users = await entities_1.User.find({
+            relations: ["settings"],
+        });
+        for (const user of users) {
+            const spotifyApi = await spotify_api_utils_1.getUserSpotifyApi(user);
+            const recentlyPlayed = (await spotifyApi.getMyRecentlyPlayedTracks({
+                limit: 50,
+            })).body.items;
+            if (typeof user.totalSeconds !== "number") {
+                user.totalSeconds = BigInt(0);
+            }
+            const promises = recentlyPlayed.map((track) => parseStream(user, track));
+            const values = await Promise.all(promises);
+            user.totalSeconds += BigInt(Math.round(values.reduce((a, b) => a + b) / 1000));
+            await user.save();
+            await spotify_api_utils_1.resetSpotifyApiTokens(spotifyApi);
+        }
     }
     catch (err) {
-        Logger_1.errorLogger("error!!!", err);
+        console.error(err);
     }
-    console.timeEnd("scraper");
-    Logger_1.infoLogger("done!");
-}
-exports.default = scraper;
+    console.timeEnd(consoleString);
+};
 //# sourceMappingURL=Scraper.js.map

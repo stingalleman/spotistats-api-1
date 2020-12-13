@@ -11,8 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Stream = void 0;
 const typeorm_1 = require("typeorm");
-const Song_1 = require("./Song");
-const User_1 = require("./User");
 let Stream = class Stream extends typeorm_1.BaseEntity {
 };
 __decorate([
@@ -20,29 +18,29 @@ __decorate([
     __metadata("design:type", Number)
 ], Stream.prototype, "id", void 0);
 __decorate([
-    typeorm_1.ManyToOne(() => User_1.User, user => user.id, { eager: false, nullable: false }),
-    __metadata("design:type", User_1.User)
-], Stream.prototype, "user", void 0);
+    typeorm_1.Column("text", { nullable: false }),
+    __metadata("design:type", String)
+], Stream.prototype, "userId", void 0);
 __decorate([
-    typeorm_1.ManyToOne(() => Song_1.Song, song => song.id, { eager: true, nullable: true }),
-    __metadata("design:type", Song_1.Song)
-], Stream.prototype, "song", void 0);
+    typeorm_1.Column("timestamp", { nullable: false }),
+    __metadata("design:type", Date)
+], Stream.prototype, "endTime", void 0);
 __decorate([
-    typeorm_1.Column("bigint", { nullable: false }),
+    typeorm_1.Column("text", { nullable: true }),
+    __metadata("design:type", String)
+], Stream.prototype, "contextId", void 0);
+__decorate([
+    typeorm_1.Column("text", { nullable: true }),
+    __metadata("design:type", String)
+], Stream.prototype, "artistName", void 0);
+__decorate([
+    typeorm_1.Column("text", { nullable: true }),
+    __metadata("design:type", String)
+], Stream.prototype, "trackName", void 0);
+__decorate([
+    typeorm_1.Column("integer", { nullable: true }),
     __metadata("design:type", Number)
-], Stream.prototype, "timestamp", void 0);
-__decorate([
-    typeorm_1.Column("text", { nullable: true }),
-    __metadata("design:type", String)
-], Stream.prototype, "contextType", void 0);
-__decorate([
-    typeorm_1.Column("text", { nullable: true }),
-    __metadata("design:type", String)
-], Stream.prototype, "contextID", void 0);
-__decorate([
-    typeorm_1.Column("text", { nullable: true }),
-    __metadata("design:type", String)
-], Stream.prototype, "artistID", void 0);
+], Stream.prototype, "msPlayed", void 0);
 Stream = __decorate([
     typeorm_1.Entity("streams")
 ], Stream);

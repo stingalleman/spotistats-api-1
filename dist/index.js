@@ -23,26 +23,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
-const node_schedule_1 = __importDefault(require("node-schedule"));
+// import schedule from "node-schedule";
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const Database_1 = __importDefault(require("./core/Database"));
 const Router_1 = __importDefault(require("./core/Router"));
-const PlaylistSync_1 = __importDefault(require("./core/PlaylistSync"));
+// import playlistSync from "./core/PlaylistSync";
 const Scraper_1 = __importDefault(require("./core/Scraper"));
 const bootstrap = async () => {
     await Database_1.default();
     await Router_1.default();
     await Scraper_1.default();
-    await PlaylistSync_1.default();
+    // await importData("sjoerdgaatwakawaka");
+    // await playlistSync();
 };
 bootstrap();
-// run scraper() every hour
-node_schedule_1.default.scheduleJob("0 */1 * * *", async () => {
-    await Scraper_1.default();
-});
-// run playlistSync() every day
-node_schedule_1.default.scheduleJob("0 0 * * *", async () => {
-    await PlaylistSync_1.default();
-});
+// // run scraper() every hour
+// schedule.scheduleJob("0 */1 * * *", async () => {
+//   await scraper();
+// });
+// // run playlistSync() every day
+// schedule.scheduleJob("0 0 * * *", async () => {
+//   await playlistSync();
+// });
 //# sourceMappingURL=index.js.map
