@@ -1,33 +1,66 @@
 /* eslint-disable no-empty */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 import fs from "fs";
-import { Stream, User } from "../entities";
+import { sleep } from "../misc";
+import { User, UserTrack } from "../entities";
 
-const parseStream = async (user: User, track): Promise<number> => {
+const parseUserTrack = async (user: User, stream): Promise<number> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     try {
-      let stream = await Stream.findOne({
-        userId: user.id,
-        // user: user,
-        endTime: new Date(track.endTime),
-        msPlayed: track.msPlayed,
+      stream.artistName = encodeURI(stream.artistName);
+      stream.trackName = encodeURI(stream.trackName);
+      console.log(stream.trackName, "by", stream.artistName);
+      let userTrack = await UserTrack.findOne({
+        where: {
+          //   user: { id: user.id },
+          trackName: stream.trackName,
+          artistName: stream.artistName,
+        },
+        // relations: ["user"],
       });
 
-      if (stream === null || stream === undefined) {
-        stream = await Stream.create({
-          userId: user.id,
-          //   user: user,
-          endTime: new Date(track.endTime),
-          contextId: null,
-          trackName: encodeURI(track.trackName),
-          artistName: encodeURI(track.artistName),
-          msPlayed: track.msPlayed,
+      if (userTrack === null || userTrack === undefined) {
+        userTrack = await UserTrack.create({
+          user: user,
+          // track: track,
+          trackName: stream.trackName,
+          artistName: stream.artistName,
+          durationMs: stream.msPlayed,
+          count: 1,
+          firstStream: new Date(stream.endTime),
+          lastStream: new Date(stream.endTime),
         }).save();
 
         resolve(stream.msPlayed);
       } else {
+        if (
+          userTrack.lastStream.getTime() !== new Date(stream.endTime).getTime()
+        ) {
+          //   console.log(
+          //     stream.trackName,
+          //     "exists",
+          //     userTrack.lastStream,
+          //     new Date(stream.endTime)
+          //   );
+          const a = await UserTrack.create({
+            id: userTrack.id,
+            user: user,
+            // track: track,
+            trackName: stream.trackName,
+            artistName: stream.artistName,
+            durationMs:
+              stream.msPlayed > userTrack.durationMs
+                ? stream.msPlayed
+                : userTrack.durationMs,
+            count: userTrack.count + 1,
+            firstStream: userTrack.firstStream,
+            lastStream: new Date(stream.endTime),
+          }).save();
+          resolve(stream.msPlayed);
+        }
         resolve(0);
       }
     } catch (e) {
@@ -42,34 +75,41 @@ export default async (userId: string): Promise<void> => {
   try {
     console.time(consoleString);
     const user = await User.findOne({
-      id: userId,
+      where: { id: userId },
+      relations: ["stats"],
     });
 
-    if (typeof user.totalSeconds !== "number") {
-      user.totalSeconds = BigInt(0);
-    }
-
     const importStreams: object[] = JSON.parse(
-      fs.readFileSync("data/StreamingHistory1.json", { encoding: "utf8" })
+      fs.readFileSync("data/StreamingHistoryCombined.json", {
+        encoding: "utf8",
+      })
+    ).sort(
+      (a, b) => new Date(a.endTime).getTime() - new Date(b.endTime).getTime()
     );
 
     console.log(importStreams.length);
-    // importStreams = importStreams.splice(0, 30);
-    // console.log(importStreams.length);
+    const values = [];
 
-    const promises = importStreams.map((track) => parseStream(user, track));
-    const values: number[] = await Promise.all(promises);
+    for (let i = 0; i < importStreams.length; i++) {
+      const seconds = await parseUserTrack(user, importStreams[i]);
+      values.push(seconds);
+    }
 
-    user.totalSeconds += BigInt(
-      Math.round(values.reduce((a, b) => a + b) / 1000)
-    );
-    console.log(user.totalSeconds);
+    // const promises = importStreams.map(
+    //   async (stream) => await parseUserTrack(user, stream)
+    // );
+
+    // const values = await Promise.all(promises);
+
+    const newSeconds: number = values.reduce(
+      (a: number, b: number) => a + b
+    ) as number;
+    user.stats.totalSeconds =
+      BigInt(user.stats.totalSeconds) + BigInt(newSeconds);
 
     await user.save();
-
-    //   await resetSpotifyApiTokens(spotifyApi);
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    console.error(e.toString());
   }
   console.timeEnd(consoleString);
 };

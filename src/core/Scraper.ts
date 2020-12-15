@@ -1,50 +1,89 @@
 /* eslint-disable no-empty */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import SpotifyWebApi from "spotify-web-api-node";
-import { Stream, User, UserSettings } from "../entities";
+import { User, UserTrack } from "../entities";
 import {
   getUserSpotifyApi,
   resetSpotifyApiTokens,
 } from "../utils/spotify-api.utils";
 
-const parseStream = async (user: User, track) => {
-  try {
-    let stream = await Stream.findOne({
-      userId: user.id,
-      // user: user,
-      endTime: track.playedAt,
-    });
+const parseUserTrack = async (user: User, stream): Promise<number> => {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve, reject) => {
+    try {
+      // let [userTrack, track] = await Promise.all([
+      //   UserTrack.findOne({
+      //     where: {
+      //       user: { id: user.id },
+      //       track: { id: stream.track.id },
+      //     },
+      //     relations: ["user", "track"],
+      //   }),
+      //   Track.findOne({
+      //     id: stream.track.id,
+      //   }),
+      // ]);
+      let userTrack = await UserTrack.findOne({
+        where: {
+          user: { id: user.id },
+          trackName: stream.track.name,
+        },
+        relations: ["user"],
+      });
 
-    if (stream === null || stream === undefined) {
-      const hasContext =
-        track.context !== null && typeof track.context.uri === "string";
-      let msPlayed = 0;
-      try {
-        msPlayed = track.msPlayed;
-      } catch (e) {}
-      try {
-        msPlayed = track.track.duration_ms;
-      } catch (e) {}
+      // if (track === null || track === undefined) {
+      //   try {
+      //     track = await Track.create({
+      //       id: stream.track.id,
+      //       name: stream.track.name,
+      //       artistId: stream.track.artists[0].id,
+      //       durationMs: stream.track.duration_ms,
+      //       explicit: stream.track.explicit,
+      //     }).save();
+      //   } catch (e) {}
+      // }
 
-      stream = await Stream.create({
-        userId: user.id,
-        // user: user,
-        endTime: new Date(track.played_at),
-        contextId: hasContext ? track.context.uri.split(":")[2] : null,
-        trackName: encodeURI(track.track.name),
-        artistName: encodeURI(track.track.artists[0].name),
-        msPlayed: msPlayed,
-      }).save();
+      if (userTrack === null || userTrack === undefined) {
+        // const hasContext =
+        //   stream.context !== null && typeof stream.context.uri === "string";
 
-      return stream.msPlayed;
-    } else {
-      return 0;
+        userTrack = await UserTrack.create({
+          user: user,
+          // track: track,
+          trackName: stream.track.name,
+          artistName: stream.artists[0].name,
+          durationMs: stream.track.duration_ms,
+          count: 1,
+          firstStream: new Date(stream.played_at),
+          lastStream: new Date(stream.played_at),
+        }).save();
+
+        resolve(stream.track.duration_ms);
+      } else {
+        if (
+          userTrack.lastStream.getTime() !==
+          new Date(stream.played_at).getTime()
+        ) {
+          const a = await UserTrack.create({
+            id: userTrack.id,
+            user: user,
+            // track: track,
+            trackName: stream.track.name,
+            artistName: stream.artists[0].name,
+            durationMs: stream.track.duration_ms,
+            count: userTrack.count++,
+            firstStream: userTrack.firstStream,
+            lastStream: new Date(stream.played_at),
+          }).save();
+          resolve(stream.track.duration_ms);
+        }
+        resolve(0);
+      }
+    } catch (e) {
+      console.error(e);
+      resolve(0);
     }
-  } catch (e) {
-    console.error(e);
-    return 0;
-  }
+  });
 };
 
 export default async (): Promise<void> => {
@@ -52,7 +91,7 @@ export default async (): Promise<void> => {
   try {
     console.time(consoleString);
     const users = await User.find({
-      relations: ["settings"],
+      relations: ["settings", "stats"],
     });
 
     for (const user of users) {
@@ -64,16 +103,16 @@ export default async (): Promise<void> => {
         })
       ).body.items;
 
-      if (typeof user.totalSeconds !== "number") {
-        user.totalSeconds = BigInt(0);
-      }
+      const promises = recentlyPlayed.map(
+        async (stream) => await parseUserTrack(user, stream)
+      );
 
-      const promises = recentlyPlayed.map((track) => parseStream(user, track));
       const values = await Promise.all(promises);
 
-      user.totalSeconds += BigInt(
-        Math.round(values.reduce((a, b) => a + b) / 1000)
-      );
+      const newSeconds: number = values.reduce(
+        (a: number, b: number) => a + b
+      ) as number;
+      user.stats.totalSeconds += BigInt(Math.round(newSeconds / 1000));
 
       await user.save();
 
