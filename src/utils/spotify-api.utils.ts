@@ -29,7 +29,7 @@ export function getUserSpotifyApi(user: User): Promise<SpotifyWebApi> {
   return new Promise((resolve, reject) => {
     spotifyApi.setRefreshToken(user.settings.refreshToken);
 
-    if (user.settings.accessTokenExpiration.getTime() > new Date().getTime()) {
+    if (new Date(user.settings.accessTokenExpiration).getTime() > Date.now()) {
       spotifyApi.refreshAccessToken().then(
         (refreshResult) => {
           // Update token in DB
