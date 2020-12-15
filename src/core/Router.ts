@@ -1,5 +1,6 @@
 import express from "express";
 import authRouter from "../routers/auth";
+import apiRouter from "../routers/api";
 
 import { infoLogger } from "../misc/Logger";
 
@@ -11,6 +12,7 @@ export default async (): Promise<void> => {
   );
 
   app.use(authRouter);
+  app.use(apiRouter);
 
-  app.listen("8123", () => infoLogger("Listening on http://localhost:8123"));
+  app.listen(process.env.API_PORT, () => infoLogger("Listening"));
 };
