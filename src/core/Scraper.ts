@@ -11,6 +11,8 @@ const parseUserTrack = async (user: User, stream): Promise<number> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     try {
+      stream.artistName = encodeURI(stream.track.artists[0].name);
+      stream.trackName = encodeURI(stream.track.name);
       // let [userTrack, track] = await Promise.all([
       //   UserTrack.findOne({
       //     where: {
@@ -26,7 +28,8 @@ const parseUserTrack = async (user: User, stream): Promise<number> => {
       let userTrack = await UserTrack.findOne({
         where: {
           user: { id: user.id },
-          trackName: stream.track.name,
+          trackName: stream.trackName,
+          artistName: stream.artistName,
         },
         relations: ["user"],
       });
@@ -50,8 +53,8 @@ const parseUserTrack = async (user: User, stream): Promise<number> => {
         userTrack = await UserTrack.create({
           user: user,
           // track: track,
-          trackName: stream.track.name,
-          artistName: stream.artists[0].name,
+          trackName: stream.trackName,
+          artistName: stream.artistName,
           durationMs: stream.track.duration_ms,
           count: 1,
           firstStream: new Date(stream.played_at),
@@ -68,10 +71,10 @@ const parseUserTrack = async (user: User, stream): Promise<number> => {
             id: userTrack.id,
             user: user,
             // track: track,
-            trackName: stream.track.name,
-            artistName: stream.artists[0].name,
+            trackName: stream.trackName,
+            artistName: stream.artistName,
             durationMs: stream.track.duration_ms,
-            count: userTrack.count++,
+            count: userTrack.count + 1,
             firstStream: userTrack.firstStream,
             lastStream: new Date(stream.played_at),
           }).save();
@@ -112,7 +115,8 @@ export default async (): Promise<void> => {
       const newSeconds: number = values.reduce(
         (a: number, b: number) => a + b
       ) as number;
-      user.stats.totalSeconds += BigInt(Math.round(newSeconds / 1000));
+      user.stats.totalSeconds =
+        BigInt(user.stats.totalSeconds) + BigInt(newSeconds);
 
       await user.save();
 
