@@ -1,7 +1,21 @@
-import { Stream } from "./Stream";
+import { UserTrack } from "./UserTrack";
 import { User } from "./User";
 import { UserSettings } from "./UserSettings";
+import { UserStats } from "./UserStats";
+// import { Track } from "./Track";
 
-export const TypeormEntities = [Stream, User, UserSettings];
+export const TypeormEntities = [
+  UserTrack,
+  User,
+  UserSettings,
+  UserStats,
+  // Track,
+];
 
-export { Stream, User, UserSettings };
+export {
+  UserTrack,
+  User,
+  UserSettings,
+  UserStats,
+  // Track
+};

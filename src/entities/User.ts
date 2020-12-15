@@ -1,15 +1,15 @@
 import {
-  Entity,
-  Column,
   BaseEntity,
-  PrimaryColumn,
+  Column,
+  Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
-  JoinColumn,
+  PrimaryColumn,
 } from "typeorm";
-
-import { Stream } from "./Stream";
 import { UserSettings } from "./UserSettings";
+import { UserStats } from "./UserStats";
+import { UserTrack } from "./UserTrack";
 
 @Entity("users")
 export class User extends BaseEntity {
@@ -19,22 +19,26 @@ export class User extends BaseEntity {
   @Column("text", { nullable: false })
   displayName: string;
 
-  @Column("bigint", { nullable: false, default: 0 })
-  totalSeconds: bigint;
-
-  // @OneToMany(() => Stream, (stream) => stream.user, {
-  //   eager: true,
-  //   nullable: true,
-  // })
-  // streams: Stream[];
-
   @Column("boolean", { nullable: false, default: false })
   disabled: boolean;
 
+  @OneToMany(() => UserTrack, (userTrack) => userTrack.user, {
+    eager: false,
+    nullable: true,
+  })
+  streams: UserTrack[];
+
   @OneToOne(() => UserSettings, (userSettings) => userSettings.refreshToken, {
     cascade: true,
-    eager: true,
+    eager: false,
   })
   @JoinColumn({ name: "settings" })
   settings: UserSettings;
+
+  @OneToOne(() => UserStats, (userStats) => userStats.id, {
+    cascade: true,
+    eager: false,
+  })
+  @JoinColumn({ name: "stats" })
+  stats: UserStats;
 }
