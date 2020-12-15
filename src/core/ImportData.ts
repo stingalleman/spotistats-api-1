@@ -80,7 +80,7 @@ export default async (userId: string): Promise<void> => {
     });
 
     const importStreams: object[] = JSON.parse(
-      fs.readFileSync("data/StreamingHistoryCombined.json", {
+      fs.readFileSync("data/Wouter.json", {
         encoding: "utf8",
       })
     ).sort(
