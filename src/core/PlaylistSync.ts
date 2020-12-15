@@ -40,3 +40,131 @@
 //   console.timeEnd("playlistSync");
 //   infoLogger("Done syncing playlists!");
 // }
+
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
+import fetch from "node-fetch";
+import { User } from "../entities";
+// const UserStream = require('../models/user-stream.model');
+import {
+  getUserSpotifyApi,
+  resetSpotifyApiTokens,
+} from "../utils/spotify-api.utils";
+
+const createPlaylist = async (spotifyApi, options) =>
+  fetch("https://api.spotify.com/v1/me/playlists", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${spotifyApi.getAccessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(options),
+  }).then((res) => res.json());
+
+const removeTracksFromPlaylist = async (spotifyApi, playlistId, tracks) => {
+  const uris = tracks.map((track) => ({ uri: track.track.uri }));
+  const max = 100;
+
+  /// spotify api can only handle 100 items at a time
+  for (let i = 0; i < uris.length; i += max) {
+    await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${spotifyApi.getAccessToken()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tracks: uris.slice(i, i + max),
+      }),
+    }).then((res) => res.json());
+  }
+};
+
+export default async (): Promise<void> => {
+  const consoleString = `(${new Date().toLocaleTimeString()}) ⏱  Playlist Sync `;
+  console.time(consoleString);
+  const users = await User.find({
+    where: { disabled: false },
+    relations: ["settings"],
+  });
+
+  for (const user of users) {
+    try {
+      const spotifyApi = await getUserSpotifyApi(user);
+      const [topTracks1, topTracks2] = (
+        await Promise.all([
+          spotifyApi.getMyTopTracks({
+            time_range: "short_term",
+            limit: 50,
+          }),
+          spotifyApi.getMyTopTracks({
+            time_range: "short_term",
+            limit: 50,
+            offset: 49,
+          }),
+        ])
+      ).map((a) => a.body.items);
+      const topTracks = topTracks1
+        .concat(topTracks2)
+        .filter((v, i, a) => a.findIndex((t) => t.id === v.id) === i);
+
+      // const lastSync = new Date().toUTCString();
+      // const description = `Created and synced through Spotistats App for Android and iOS.
+      //                      Last sync: ${lastSync} (${topTracks.length}/50 tracks available)`;
+      const description =
+        "Created and synced through Spotistats App for Android and iOS 💚";
+      let playlist = null;
+      if (
+        user.settings.playlistId !== null &&
+        user.settings.playlistId !== undefined
+      ) {
+        try {
+          playlist = (await spotifyApi.getPlaylist(user.settings.playlistId))
+            .body;
+        } catch (e) {
+          playlist = null;
+        }
+      }
+
+      if (playlist === null || playlist === undefined) {
+        playlist = await createPlaylist(spotifyApi, {
+          name: `${user.displayName}'s Top Tracks - Past 4 weeks`,
+          description,
+          public: true,
+          collaborative: false,
+        });
+
+        user.settings.playlistId = playlist.id;
+
+        await user.save();
+      } else {
+        /// explicitly no await to speed up the process
+        spotifyApi.followPlaylist(playlist.id);
+      }
+
+      if (
+        playlist.tracks &&
+        playlist.tracks.items &&
+        playlist.tracks.items.length > 0
+      ) {
+        await removeTracksFromPlaylist(
+          spotifyApi,
+          playlist.id,
+          playlist.tracks.items
+        );
+      }
+
+      if (topTracks && topTracks.length > 0) {
+        await spotifyApi.addTracksToPlaylist(
+          playlist.id,
+          topTracks.map((track) => track.uri)
+        );
+      }
+
+      await resetSpotifyApiTokens(spotifyApi);
+    } catch (err) {
+      // console.error(err);
+    }
+  }
+  console.timeEnd(consoleString);
+};

@@ -7,7 +7,7 @@ dotenv.config();
 
 import database from "./core/Database";
 import router from "./core/Router";
-// import playlistSync from "./core/PlaylistSync";
+import playlistSync from "./core/PlaylistSync";
 import scraper from "./core/Scraper";
 import importData from "./core/ImportData";
 
@@ -16,7 +16,7 @@ const bootstrap = async (): Promise<void> => {
   await router();
   await scraper();
   // await importData("sjoerdgaatwakawaka");
-  // await playlistSync();
+  await playlistSync();
 };
 
 bootstrap();
