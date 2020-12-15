@@ -13,4 +13,7 @@ export class UserSettings extends BaseEntity {
 
   @Column("text", { name: "playlistId", nullable: true })
   playlistId: string;
+
+  @Column("bool", { nullable: false, default: false })
+  hasImported: boolean;
 }
