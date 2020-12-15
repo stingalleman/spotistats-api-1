@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 
 const jwtSecret = process.env.JWT_SECRET;
 
-module.exports = (req: Request, res: Response, next: Function) => {
+export default (req: Request, res: Response, next: Function): void => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, jwtSecret);
@@ -15,6 +15,6 @@ module.exports = (req: Request, res: Response, next: Function) => {
       next();
     }
   } catch (e) {
-    res.status(401).end();
+    res.status(401).json({ error: "unauthorized" }).end();
   }
 };
