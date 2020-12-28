@@ -10,82 +10,82 @@ import {
 const parseUserTrack = async (user: User, stream): Promise<number> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
-    try {
-      stream.artistName = encodeURI(stream.track.artists[0].name);
-      stream.trackName = encodeURI(stream.track.name);
-      // let [userTrack, track] = await Promise.all([
-      //   UserTrack.findOne({
-      //     where: {
-      //       user: { id: user.id },
-      //       track: { id: stream.track.id },
-      //     },
-      //     relations: ["user", "track"],
-      //   }),
-      //   Track.findOne({
-      //     id: stream.track.id,
-      //   }),
-      // ]);
-      let userTrack = await UserTrack.findOne({
-        where: {
-          user: { id: user.id },
-          trackName: stream.trackName,
-          artistName: stream.artistName,
-        },
-        relations: ["user"],
-      });
+    // try {
+    //   stream.artistName = encodeURI(stream.track.artists[0].name);
+    //   stream.trackName = encodeURI(stream.track.name);
+    //   // let [userTrack, track] = await Promise.all([
+    //   //   UserTrack.findOne({
+    //   //     where: {
+    //   //       user: { id: user.id },
+    //   //       track: { id: stream.track.id },
+    //   //     },
+    //   //     relations: ["user", "track"],
+    //   //   }),
+    //   //   Track.findOne({
+    //   //     id: stream.track.id,
+    //   //   }),
+    //   // ]);
+    //   let userTrack = await UserTrack.findOne({
+    //     where: {
+    //       user: { id: user.id },
+    //       trackName: stream.trackName,
+    //       artistName: stream.artistName,
+    //     },
+    //     relations: ["user"],
+    //   });
 
-      // if (track === null || track === undefined) {
-      //   try {
-      //     track = await Track.create({
-      //       id: stream.track.id,
-      //       name: stream.track.name,
-      //       artistId: stream.track.artists[0].id,
-      //       durationMs: stream.track.duration_ms,
-      //       explicit: stream.track.explicit,
-      //     }).save();
-      //   } catch (e) {}
-      // }
+    //   // if (track === null || track === undefined) {
+    //   //   try {
+    //   //     track = await Track.create({
+    //   //       id: stream.track.id,
+    //   //       name: stream.track.name,
+    //   //       artistId: stream.track.artists[0].id,
+    //   //       durationMs: stream.track.duration_ms,
+    //   //       explicit: stream.track.explicit,
+    //   //     }).save();
+    //   //   } catch (e) {}
+    //   // }
 
-      if (userTrack === null || userTrack === undefined) {
-        // const hasContext =
-        //   stream.context !== null && typeof stream.context.uri === "string";
+    //   if (userTrack === null || userTrack === undefined) {
+    //     // const hasContext =
+    //     //   stream.context !== null && typeof stream.context.uri === "string";
 
-        userTrack = await UserTrack.create({
-          user: user,
-          // track: track,
-          trackName: stream.trackName,
-          artistName: stream.artistName,
-          durationMs: stream.track.duration_ms,
-          count: 1,
-          firstStream: new Date(stream.played_at),
-          lastStream: new Date(stream.played_at),
-        }).save();
+    //     userTrack = await UserTrack.create({
+    //       user: user,
+    //       // track: track,
+    //       trackName: stream.trackName,
+    //       artistName: stream.artistName,
+    //       durationMs: stream.track.duration_ms,
+    //       count: 1,
+    //       firstStream: new Date(stream.played_at),
+    //       lastStream: new Date(stream.played_at),
+    //     }).save();
 
-        resolve(stream.track.duration_ms);
-      } else {
-        if (
-          userTrack.lastStream.getTime() !==
-          new Date(stream.played_at).getTime()
-        ) {
-          const a = await UserTrack.create({
-            id: userTrack.id,
-            user: user,
-            // track: track,
-            trackName: stream.trackName,
-            artistName: stream.artistName,
-            durationMs: stream.track.duration_ms,
-            count: userTrack.count + 1,
-            firstStream: userTrack.firstStream,
-            lastStream: new Date(stream.played_at),
-          }).save();
-          resolve(stream.track.duration_ms);
-        }
-        resolve(0);
-      }
-    } catch (e) {
-      console.error(e);
-      resolve(0);
-    }
+    //     resolve(stream.track.duration_ms);
+    //   } else {
+    //     if (
+    //       userTrack.lastStream.getTime() !==
+    //       new Date(stream.played_at).getTime()
+    //     ) {
+    //       const a = await UserTrack.create({
+    //         id: userTrack.id,
+    //         user: user,
+    //         // track: track,
+    //         trackName: stream.trackName,
+    //         artistName: stream.artistName,
+    //         durationMs: stream.track.duration_ms,
+    //         count: userTrack.count + 1,
+    //         firstStream: userTrack.firstStream,
+    //         lastStream: new Date(stream.played_at),
+    //       }).save();
+    //       resolve(stream.track.duration_ms);
+    //     }
+    //     resolve(0);
+    //   }
+    // } catch (e) {
+    //   console.error(e);
+    resolve(0);
+    // }
   });
 };
 

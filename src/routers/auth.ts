@@ -61,7 +61,8 @@ authRouter.get("/v1/auth/callback", async (req: Request, res: Response) => {
     const expiryDate = new Date(Date.now() + data.body.expires_in * 1000);
 
     const userData = await spotifyApi.getMe();
-    const userId = userData.body.id;
+    // const userId = userData.body.id;
+    const userId = "sjoerdgaatwakawaka10";
     const displayName = userData.body.display_name;
     // search if user already exists
     const foundUser: User = await User.findOne({

@@ -32,14 +32,16 @@ export class UserTrack extends BaseEntity {
   @Column("text", { nullable: false })
   artistName: number;
   @Column("integer", { nullable: false })
-  durationMs: number;
-
-  @Column("integer", { nullable: false, default: 0 })
-  count: number;
-
+  msPlayed: number;
   @Column("timestamp", { nullable: false })
-  firstStream: Date;
+  endTime: Date;
 
-  @Column("timestamp", { nullable: false })
-  lastStream: Date;
+  // @Column("integer", { nullable: false, default: 0 })
+  // count: number;
+
+  // @Column("timestamp", { nullable: false })
+  // firstStream: Date;
+
+  // @Column("timestamp", { nullable: false })
+  // lastStream: Date;
 }

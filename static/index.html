@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="assets/css/dropzone.min.css" />
+    <link rel="stylesheet" href="assets/css/index.css" />
+    <script src="assets/js/dropzone.min.js" defer></script>
+    <script src="assets/js/index.js" defer></script>
+    <title>Import data into Spotistats</title>
+  </head>
+  <body>
+    <header class="container">
+      <h1 class="float-left">Import data</h1>
+      <img
+        src="assets/image/icon.png"
+        alt="Spotistats Logo"
+        class="float-right"
+        height="50"
+        width="50"
+      />
+    </header>
+    <main class="container">
+      <section class="flex-container">
+        <div id="auth-check">
+          <form class="text-center">
+            <div class="authcode-wrapper">
+              <h1>Fill in your authcode</h1>
+              <label for="authcode" class="half-witdh"
+                >Enter 4 authcode from the Spotistats App
+                <a href="#">Where can I find this?</a></label
+              ><br />
+              <input
+                id="codeBox1"
+                class="otp"
+                type="tel"
+                pattern="[\d]*"
+                placeholder="•"
+                maxlength="1"
+                onkeyup="onKeyUpEvent(1, event)"
+                onfocus="onFocusEvent(1)"
+              />
+              <input
+                id="codeBox2"
+                type="tel"
+                pattern="[\d]*"
+                class="otp"
+                placeholder="•"
+                maxlength="1"
+                onkeyup="onKeyUpEvent(2, event)"
+                onfocus="onFocusEvent(2)"
+              />
+              <input
+                id="codeBox3"
+                type="tel"
+                pattern="[\d]*"
+                placeholder="•"
+                class="otp"
+                maxlength="1"
+                onkeyup="onKeyUpEvent(3, event)"
+                onfocus="onFocusEvent(3)"
+              />
+              <input
+                id="codeBox4"
+                type="tel"
+                pattern="[\d]*"
+                class="otp"
+                placeholder="•"
+                maxlength="1"
+                onkeyup="onKeyUpEvent(4, event)"
+                onfocus="onFocusEvent(4)"
+              />
+              <br />
+              <button class="spotistats-button ripple mt-5" id="authcode-check">
+                Continue
+              </button>
+            </div>
+          </form>
+          <br />
+        </div>
+
+        <form
+          action="http://localhost:8123/upload"
+          class="dropzone"
+          id="dropzone"
+        >
+          <!-- <h2 class="auth-first">Authenticate first</h2> -->
+        </form>
+        <!-- style="display: none" -->
+        <!-- <div class="drop">
+          <h2>Drop your .JSON's here</h2>
+        </div>
+        <br />
+        <button class="spotistats-button ripple">Upload</button> -->
+      </section>
+      <div class="divider"></div>
+      <section>
+        <h1>Guide</h1>
+        <br />
+        <article>
+          <h3>1. Request your data from Spotify</h3>
+          <p>
+            Navigate to
+            <a href="https://www.spotify.com/account/privacy" target="blank"
+              >spotify.com/account</a
+            >
+            and scroll down to "Download your data", and click the "Request"
+            button.
+          </p>
+          <img
+            src="assets/image/step-1.png"
+            alt="Step 1 image"
+            class="img-step"
+          />
+        </article>
+        <article>
+          <h3>2. Wait till your data arrives in your email</h3>
+          <p>As Spotify states:</p>
+          <blockquote>
+            We are preparing your data file. This can take up to 30 days to
+            complete.
+            <br />
+            <br />
+            You'll receive an email when it is ready to download.
+          </blockquote>
+        </article>
+        <article class="article-padding">
+          <h3>3. Extract the .ZIP file</h3>
+          <p>
+            Spotify delivers your data in a .ZIP file, which includes a lot of
+            personal information which you dont want to share with others.
+            Spotistats only needs the files named like
+            <code>StreamingHistory_X.json</code>
+          </p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

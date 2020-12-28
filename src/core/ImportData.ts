@@ -1,7 +1,6 @@
 /* eslint-disable no-empty */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 import fs from "fs";
 import { sleep } from "../misc";
 import { User, UserTrack } from "../entities";
@@ -9,64 +8,57 @@ import { User, UserTrack } from "../entities";
 const parseUserTrack = async (user: User, stream): Promise<number> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
-    try {
-      stream.artistName = encodeURI(stream.artistName);
-      stream.trackName = encodeURI(stream.trackName);
-      console.log(stream.trackName, "by", stream.artistName);
-      let userTrack = await UserTrack.findOne({
-        where: {
-          //   user: { id: user.id },
-          trackName: stream.trackName,
-          artistName: stream.artistName,
-        },
-        // relations: ["user"],
-      });
+    // try {
+    //   stream.artistName = encodeURI(stream.artistName);
+    //   stream.trackName = encodeURI(stream.trackName);
+    //   let userTrack = await UserTrack.findOne({
+    //     where: {
+    //       //   user: { id: user.id },
+    //       trackName: stream.trackName,
+    //       artistName: stream.artistName,
+    //     },
+    //     // relations: ["user"],
+    //   });
 
-      if (userTrack === null || userTrack === undefined) {
-        userTrack = await UserTrack.create({
-          user: user,
-          // track: track,
-          trackName: stream.trackName,
-          artistName: stream.artistName,
-          durationMs: stream.msPlayed,
-          count: 1,
-          firstStream: new Date(stream.endTime),
-          lastStream: new Date(stream.endTime),
-        }).save();
+    //   if (userTrack === null || userTrack === undefined) {
+    //     userTrack = await UserTrack.create({
+    //       user: user,
+    //       // track: track,
+    //       trackName: stream.trackName,
+    //       artistName: stream.artistName,
+    //       durationMs: stream.msPlayed,
+    //       count: 1,
+    //       firstStream: new Date(stream.endTime),
+    //       lastStream: new Date(stream.endTime),
+    //     }).save();
 
-        resolve(stream.msPlayed);
-      } else {
-        if (
-          userTrack.lastStream.getTime() !== new Date(stream.endTime).getTime()
-        ) {
-          //   console.log(
-          //     stream.trackName,
-          //     "exists",
-          //     userTrack.lastStream,
-          //     new Date(stream.endTime)
-          //   );
-          const a = await UserTrack.create({
-            id: userTrack.id,
-            user: user,
-            // track: track,
-            trackName: stream.trackName,
-            artistName: stream.artistName,
-            durationMs:
-              stream.msPlayed > userTrack.durationMs
-                ? stream.msPlayed
-                : userTrack.durationMs,
-            count: userTrack.count + 1,
-            firstStream: userTrack.firstStream,
-            lastStream: new Date(stream.endTime),
-          }).save();
-          resolve(stream.msPlayed);
-        }
-        resolve(0);
-      }
-    } catch (e) {
-      console.error(e);
-      resolve(0);
-    }
+    //     resolve(stream.msPlayed);
+    //   } else {
+    //     if (
+    //       userTrack.lastStream.getTime() !== new Date(stream.endTime).getTime()
+    //     ) {
+    //       const a = await UserTrack.create({
+    //         id: userTrack.id,
+    //         user: user,
+    //         // track: track,
+    //         trackName: stream.trackName,
+    //         artistName: stream.artistName,
+    //         durationMs:
+    //           stream.msPlayed > userTrack.durationMs
+    //             ? stream.msPlayed
+    //             : userTrack.durationMs,
+    //         count: userTrack.count + 1,
+    //         firstStream: userTrack.firstStream,
+    //         lastStream: new Date(stream.endTime),
+    //       }).save();
+    //       resolve(stream.msPlayed);
+    //     }
+    //     resolve(0);
+    //   }
+    // } catch (e) {
+    //   console.error(e);
+    resolve(0);
+    // }
   });
 };
 
@@ -80,7 +72,7 @@ export default async (userId: string): Promise<void> => {
     });
 
     const importStreams: object[] = JSON.parse(
-      fs.readFileSync("data/Wouter.json", {
+      fs.readFileSync("data/StreamingHistoryCombined.json", {
         encoding: "utf8",
       })
     ).sort(
