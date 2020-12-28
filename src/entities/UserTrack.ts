@@ -4,6 +4,7 @@ import {
   BaseEntity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from "typeorm";
 
 import { User } from "./User";
@@ -11,8 +12,10 @@ import { User } from "./User";
 
 @Entity("usertracks")
 export class UserTrack extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  // @PrimaryGeneratedColumn()
+  // id: number;
+  @PrimaryColumn("text")
+  id: String;
 
   @ManyToOne(() => User, (user) => user.id, {
     cascade: true,
