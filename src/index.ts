@@ -17,8 +17,8 @@ const bootstrap = async (): Promise<void> => {
   await router();
   // await scraper();
   // await importData("sjoerdgaatwakawaka10");
-  createTestUsers();
-  // importTestData();
+  await createTestUsers();
+  // await importTestData();
   // importData("sjoerdgaatwakawaka7");
   // importData("sjoerdgaatwakawaka8");
   // importData("sjoerdgaatwakawaka9");
@@ -29,13 +29,15 @@ const bootstrap = async (): Promise<void> => {
 bootstrap();
 
 async function importTestData() {
-  for (let i = 5; i < 1000; i++) {
+  console.time("Import 2000");
+  for (let i = 0; i < 2000; i++) {
     await importData(`sjoerdgaatwakawaka${i}`);
   }
+  console.timeEnd("Import 2000");
 }
 
 async function createTestUsers() {
-  for (let i = 5; i < 1000; i++) {
+  for (let i = 0; i < 2000; i++) {
     console.log(`sjoerdgaatwakawaka${i}`);
     const user = User.create({
       id: `sjoerdgaatwakawaka${i}`,

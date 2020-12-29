@@ -61,18 +61,20 @@ async function getStreams(req) {
     };
 
     if (req.params.artistName !== undefined) {
-      query["artistName"] = encodeURI(req.params.artistName);
+      // query["artistName"] = encodeURI(req.params.artistName);
+      query["artistName"] = req.params.artistName;
     }
 
     if (req.params.trackName !== undefined) {
-      query["trackName"] = encodeURI(req.params.trackName);
+      // query["trackName"] = encodeURI(req.params.trackName);
+      query["trackName"] = req.params.trackName;
     }
 
-    if (req.query.before !== undefined) {
+    if (req.query.before !== undefined && req.query.after === undefined) {
       query["endTime"] = LessThan(new Date(req.query.before));
     }
 
-    if (req.query.after !== undefined) {
+    if (req.query.after !== undefined && req.query.before === undefined) {
       query["endTime"] = MoreThan(new Date(req.query.after));
     }
 

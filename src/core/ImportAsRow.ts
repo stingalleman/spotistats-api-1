@@ -4,7 +4,7 @@
 import fs from "fs";
 import { sleep } from "../misc";
 import { User, UserTrack } from "../entities";
-import { getManager } from "typeorm";
+import { getConnection, getManager } from "typeorm";
 
 const parseUserTrack = async (user: User, stream): Promise<number> => {
   // eslint-disable-next-line no-async-promise-executor
@@ -49,32 +49,20 @@ const parseUserTrack = async (user: User, stream): Promise<number> => {
 };
 
 const insertAll = async (user: User, data) => {
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise<void>(async (resolve, reject) => {
-    const parsed = data.map((stream) => {
-      stream.trackName = encodeURI(stream.trackName);
-      stream.artistName = encodeURI(stream.artistName);
+    const parsed: object[] = data.map((stream) => {
+      // stream.trackName = encodeURI(stream.trackName);
+      // stream.artistName = encodeURI(stream.artistName);
       stream.endTime = new Date(stream.endTime);
       let id = "";
-      id += user.id[0] ?? "a";
-      id += user.id[3] ?? "a";
-      id += user.id[5] ?? "a";
-      id += stream.trackName[0] ?? "a";
-      id += stream.trackName[3] ?? "a";
-      id += stream.trackName[5] ?? "a";
-      id += stream.artistName[0] ?? "a";
-      id += stream.artistName[3] ?? "a";
-      id += stream.artistName[5] ?? "a";
-      id += stream.endTime.getDay() ?? "a";
-      id += stream.endTime.getMonth() ?? "a";
-      id += stream.endTime.getYear() ?? "a";
-      id += stream.msPlayed.toString() ?? "a";
-      // id += stream.msPlayed.toString()[2] ?? "a";
-      // id += stream.msPlayed.toString()[4] ?? "a";
-      // id +=
-      //   stream.msPlayed.toString()[stream.msPlayed.toString().length - 1] ??
-      //   "a";
-
-      // console.log(id);
+      id += user.id;
+      id += stream.trackName[0];
+      id += stream.artistName[0];
+      id +=
+        (
+          Math.round(stream.endTime.getTime() / 1000) - stream.msPlayed
+        ).toString() ?? "0";
 
       return {
         id: id,
@@ -86,12 +74,15 @@ const insertAll = async (user: User, data) => {
       };
     });
 
-    const manager = await getManager();
+    const filtered = [
+      ...new Map(parsed.map((item) => [item["id"], item])).values(),
+    ];
+    // const manager = await getManager();
     const chunk = 5000;
-    let i, j, temparray;
-    for (i = 0, j = parsed.length; i < j; i += chunk) {
-      temparray = parsed.slice(i, i + chunk);
-      manager
+    let i: number, j: number, temparray: object[];
+    for (i = 0, j = filtered.length; i < j; i += chunk) {
+      temparray = filtered.slice(i, i + chunk);
+      await getConnection()
         .createQueryBuilder()
         .insert()
         .into(UserTrack)
@@ -100,6 +91,10 @@ const insertAll = async (user: User, data) => {
         .onConflict('("id") DO NOTHING')
         .execute();
     }
+
+    // for (let i = 0; i < filtered.length; i++) {
+    //   await UserTrack.create(filtered[i]).save();
+    // }
 
     resolve();
   });
