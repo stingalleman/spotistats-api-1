@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "eslint": "eslint",
+    "compile": "tsc -p .",
     "start:dev": "nodemon -r dotenv/config src/index.js dotenv_config_path=./src/config/.env.development",
     "start": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"

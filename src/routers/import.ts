@@ -1,12 +1,12 @@
+import jwt from "jsonwebtoken";
 import express, { Router } from "express";
-import parser from "body-parser";
 import fileUpload from "express-fileupload";
 import fs from "fs";
-import path from "path";
 import CloudStorageService from "../services/cloudStorage";
-// import bodyParser from "body-parser";
+import { User } from "../entities/index";
 
 const importRouter = Router();
+const jwtSecret = process.env.JWT_SECRET;
 const cloudStorage = new CloudStorageService();
 
 importRouter.use(
@@ -20,71 +20,76 @@ importRouter.use(
 
 importRouter.use(express.urlencoded({ extended: true }));
 
-// importRouter.use(bodyParser);
-
 importRouter.use("/import", express.static("static"));
 
-importRouter.post("/upload", (req, res) => {
-  return new Promise<void>(async (resolve, reject) => {
-    if (req.files == undefined || Object.keys(req.files).length == 0) {
-      res.send("missing file(s)").status(400).end();
-      resolve();
+importRouter.post("/upload", async (req, res) => {
+  try {
+    if (!(req.files != undefined && Object.keys(req.files).length != 0)) {
+      throw Error("missing file(s)");
     }
 
-    const uid = req.body.uid;
-    if (uid == undefined) {
-      res.send("missing uid").status(400).end();
-      resolve();
+    const token = req.body.token;
+    if (token == undefined) {
+      throw Error("missing token");
     }
 
     const files = [];
     Object.keys(req.files).forEach((file) => files.push(req.files[file]));
+    let totalStreams = 0;
     files[0].forEach((file): void => {
       const validName = /StreamingHistory[0-9][0-9]?.json/g.test(file.name);
       if (!validName) {
-        res.send("invalid file(s)").status(400).end();
-        resolve();
+        throw Error("invalid files");
       }
 
       let content = fs.readFileSync(file.tempFilePath, { encoding: "utf8" });
 
-      try {
-        content = JSON.parse(content);
-        if (content.length > 0 && content.length < 10001) {
-          ((content as unknown) as object[]).forEach((e) => {
-            if (
-              Object.keys(e).length == 4 &&
-              "endTime" in e &&
-              "artistName" in e &&
-              "trackName" in e &&
-              "msPlayed" in e
-            ) {
-            } else throw Error("invalid item(s)");
-          });
-        } else throw Error("invalid file(s)");
-      } catch (e) {
-        res.send(e).status(400).end();
-        resolve();
-      }
+      content = JSON.parse(content);
+      if (content.length > 0 && content.length < 10001) {
+        totalStreams += content.length;
+        ((content as unknown) as object[]).forEach((e) => {
+          if (
+            Object.keys(e).length == 4 &&
+            "endTime" in e &&
+            "artistName" in e &&
+            "trackName" in e &&
+            "msPlayed" in e
+          ) {
+          } else throw Error("invalid item(s)");
+        });
+      } else throw Error("invalid file(s)");
     });
 
-    const uploads = [];
-    for (let i in files[0]) {
-      const file = files[0][i];
-
-      uploads.push(
-        await cloudStorage.uploadFile(uid, file.name, file.tempFilePath)
-      );
+    let userId;
+    try {
+      const decodedToken = jwt.verify(token, jwtSecret);
+      userId = decodedToken.userId;
+    } catch (e) {
+      throw Error("invalid auth");
     }
 
-    console.log(uploads);
+    const user = await User.findOne({
+      where: { id: userId },
+      relations: ["imports"],
+    });
+
+    console.log(user);
+
+    // const uploads = [];
+    // for (let i in files[0]) {
+    //   const file = files[0][i];
+
+    //   uploads.push(
+    //     await cloudStorage.uploadFile(userId, file.name, file.tempFilePath)
+    //   );
+    // }
 
     res
-      .location(`http://127.0.0.1:3000/import/success.html?uid=${uid}`)
-      .status(200)
+      .json({ message: `Succesfully imported ${totalStreams} streams!` })
       .end();
-    // res.status(200).end();
-  });
+  } catch (e) {
+    res.status(400).json({ message: e.message }).end();
+  }
 });
 
 export default importRouter;

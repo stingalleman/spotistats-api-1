@@ -61,8 +61,7 @@ authRouter.get("/v1/auth/callback", async (req: Request, res: Response) => {
     const expiryDate = new Date(Date.now() + data.body.expires_in * 1000);
 
     const userData = await spotifyApi.getMe();
-    // const userId = userData.body.id;
-    const userId = "sjoerdgaatwakawaka10";
+    const userId = userData.body.id;
     const displayName = userData.body.display_name;
     // search if user already exists
     const foundUser: User = await User.findOne({
@@ -95,8 +94,11 @@ authRouter.get("/v1/auth/callback", async (req: Request, res: Response) => {
     const jwtSecret = process.env.JWT_SECRET;
     const token = jwt.sign({ userId, displayName }, jwtSecret);
 
-    res.setHeader("Authorization", token);
-    res.send({ token });
+    // res.setHeader("Authorization", token);
+    // res.send({ token });
+    res
+      .status(200)
+      .redirect(`http://localhost:3000/import#complete?token=${token}`);
     resetSpotifyApiTokens(spotifyApi);
   } catch (e) {
     res.status(500).send(e.toString());

@@ -1,63 +1,20 @@
-// Dropzone.options = {
-//   url: "siduhashdas",
-//   paramName: "file",
-//   maxFilesize: 2,
-//   accept: function (file, done) {
-//     if (!file.name.startsWith("StreamingHistory")) {
-//       done("Naha, you don't.");
-//     } else {
-//       done();
-//     }
-//   },
-//   previewTemplate: `
-//         <h2 class="auth-first">Authenticate first</h2>
-//   `,
-// };
+let token;
+let uploadSucces = false;
 
-// var myDropzone = new Dropzone("#dropzone", {
-//   url: "siduhashdas",
-//   paramName: "file",
-//   maxFilesize: 2,
-//   parallelUploads: 2,
-//   uploadMultiple: true,
-//   acceptedFiles: ["application/JSON"],
-//   accept: function (file, done) {
-//     if (!file.name.startsWith("StreamingHistory")) {
-//       done("Naha, you don't.");
-//     } else {
-//       done();
-//     }
-//   },
-//   previewTemplate: `
-//             <h2 class="auth-first">Authenticate first</h2>
-//       `,
-// });
+function on() {
+  document.getElementById("overlay").style.display = "block";
+}
 
-// Dropzone.options.dropzone = {
-//   url: "siduhashdas",
-//   paramName: "file",
-//   maxFilesize: 2,
-//   parallelUploads: 2,
-//   uploadMultiple: true,
-//   acceptedFiles: ["application/JSON"],
-//   accept: function (file, done) {
-//     if (!file.name.startsWith("StreamingHistory")) {
-//       done("Naha, you don't.");
-//     } else {
-//       done();
-//     }
-//   },
-//   previewTemplate: `
-//               <h2 class="auth-first">Authenticate first</h2>
-//         `,
-// };
+function off() {
+  document.getElementById("overlay").style.display = "none";
+}
 
 $(document).ready(function () {
   $("#submit").click(function () {
+    on();
     var form_data = new FormData();
-    form_data.append("uid", "sjoerdgaatwakawaka");
+    form_data.append("token", token);
 
-    // Read selected files
     var totalfiles = document.getElementById("files").files.length;
     for (var index = 0; index < totalfiles; index++) {
       form_data.append(
@@ -66,61 +23,64 @@ $(document).ready(function () {
       );
     }
 
-    // AJAX request
     $.ajax({
       url: "../upload",
       type: "post",
       data: form_data,
-      dataType: "json",
+      dataType: "text",
       contentType: false,
       processData: false,
-      success: function (response) {
-        // for (var index = 0; index < response.length; index++) {
-        //   var src = response[index];
-        //   // Add img element in <div id='preview'>
-        //   $("#preview").append(
-        //     '<img src="' + src + '" width="200px;" height="200px">'
-        //   );
-        // }
+      error: (response) => {
+        alert(JSON.parse(response.responseText).message);
+      },
+      success: (response) => {
+        uploadSucces = true;
+        $("#streams-imported").text(JSON.parse(response).message);
+        nextStep();
       },
     });
   });
 });
 
-function getCodeBoxElement(index) {
-  return document.getElementById("codeBox" + index);
-}
-
-function onKeyUpEvent(index, event) {
-  const eventCode = event.which || event.keyCode;
-  if (getCodeBoxElement(index).value.length === 1) {
-    if (index !== 4) {
-      getCodeBoxElement(index + 1).focus();
-    } else {
-      getCodeBoxElement(index).blur();
-      // Submit code
-      alert(getCode());
+$("#authcode-check").on("click", () => {
+  on();
+  const w = window.open(
+    "http://localhost:3000/v1/auth/redirect",
+    "_blank",
+    "toolbar=yes,scrollbars=yes,resizable=yes,width=600,height=800"
+  );
+  w.onblur = w.focus;
+  const i = setInterval(() => {
+    if (w.location.href.indexOf("#complete?token=") > 5) {
+      token = w.location.href.substring(
+        w.location.href.indexOf("#complete?token=") + 16
+      );
+      w.close();
+      clearInterval(i);
+      nextStep();
     }
-  }
-  if (eventCode === 8 && index !== 1) {
-    getCodeBoxElement(index - 1).focus();
-  }
-}
+  }, 100);
+});
 
-function onFocusEvent(index) {
-  for (item = 1; item < index; item++) {
-    const currentElement = getCodeBoxElement(item);
-    if (!currentElement.value) {
-      currentElement.focus();
-      break;
-    }
-  }
-}
+function nextStep() {
+  off();
+  if (uploadSucces) {
+    $("#auth-check").addClass("step-hidden");
+    $("#auth-check").removeClass("step-current");
 
-function getCode() {
-  let code = "";
-  for (let i = 0; i < 4; i++) {
-    code += getCodeBoxElement(i).value;
+    $("#upload-files").addClass("step-hidden");
+    $("#upload-files").removeClass("step-current");
+
+    $("#complete").addClass("step-current");
+    $("#complete").removeClass("step-hidden");
+    return;
   }
-  return code;
+
+  if (token != null && token.startsWith("ey")) {
+    $("#auth-check").addClass("step-hidden");
+    $("#auth-check").removeClass("step-current");
+
+    $("#upload-files").addClass("step-current");
+    $("#upload-files").removeClass("step-hidden");
+  }
 }

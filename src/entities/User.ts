@@ -8,6 +8,7 @@ import {
   PrimaryColumn,
 } from "typeorm";
 import { UserSettings } from "./UserSettings";
+import { UserImport } from "./UserImport";
 // import { UserStats } from "./UserStats";
 // import { UserTrack } from "./UserTrack";
 
@@ -21,6 +22,13 @@ export class User extends BaseEntity {
 
   @Column("boolean", { nullable: false, default: false })
   disabled: boolean;
+
+  @OneToMany(() => UserImport, (userImport) => userImport.id, {
+    eager: false,
+    nullable: true,
+  })
+  @JoinColumn({ name: "imports" })
+  imports: UserImport[];
 
   // @OneToMany(() => UserTrack, (userTrack) => userTrack.user, {
   //   eager: false,
