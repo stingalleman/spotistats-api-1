@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import SpotifyWebApi from "spotify-web-api-node";
 import jwt from "jsonwebtoken";
-import { User, UserSettings, UserStats } from "../entities";
+import { User, UserSettings } from "../entities";
 import { resetSpotifyApiTokens } from "../utils/spotify-api.utils";
 
 const authRouter = Router();
@@ -79,10 +79,6 @@ authRouter.get("/v1/auth/callback", async (req: Request, res: Response) => {
         // streams: [],
         disabled: false,
       });
-
-      user.stats = UserStats.create({
-        totalSeconds: BigInt(0),
-      });
     }
 
     // update auth on the (existing) user
@@ -98,8 +94,11 @@ authRouter.get("/v1/auth/callback", async (req: Request, res: Response) => {
     const jwtSecret = process.env.JWT_SECRET;
     const token = jwt.sign({ userId, displayName }, jwtSecret);
 
-    res.setHeader("Authorization", token);
-    res.send({ token });
+    // res.setHeader("Authorization", token);
+    // res.send({ token });
+    res
+      .status(200)
+      .redirect(`http://localhost:3000/import#complete?token=${token}`);
     resetSpotifyApiTokens(spotifyApi);
   } catch (e) {
     res.status(500).send(e.toString());

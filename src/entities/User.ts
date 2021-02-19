@@ -8,8 +8,9 @@ import {
   PrimaryColumn,
 } from "typeorm";
 import { UserSettings } from "./UserSettings";
-import { UserStats } from "./UserStats";
-import { UserTrack } from "./UserTrack";
+import { UserImport } from "./UserImport";
+// import { UserStats } from "./UserStats";
+// import { UserTrack } from "./UserTrack";
 
 @Entity("users")
 export class User extends BaseEntity {
@@ -22,11 +23,18 @@ export class User extends BaseEntity {
   @Column("boolean", { nullable: false, default: false })
   disabled: boolean;
 
-  @OneToMany(() => UserTrack, (userTrack) => userTrack.user, {
+  @OneToMany(() => UserImport, (userImport) => userImport.id, {
     eager: false,
     nullable: true,
   })
-  streams: UserTrack[];
+  @JoinColumn({ name: "imports" })
+  imports: UserImport[];
+
+  // @OneToMany(() => UserTrack, (userTrack) => userTrack.user, {
+  //   eager: false,
+  //   nullable: true,
+  // })
+  // streams: UserTrack[];
 
   @OneToOne(() => UserSettings, (userSettings) => userSettings.refreshToken, {
     cascade: true,
@@ -35,10 +43,10 @@ export class User extends BaseEntity {
   @JoinColumn({ name: "settings" })
   settings: UserSettings;
 
-  @OneToOne(() => UserStats, (userStats) => userStats.id, {
-    cascade: true,
-    eager: false,
-  })
-  @JoinColumn({ name: "stats" })
-  stats: UserStats;
+  // @OneToOne(() => UserStats, (userStats) => userStats.id, {
+  //   cascade: true,
+  //   eager: false,
+  // })
+  // @JoinColumn({ name: "stats" })
+  // stats: UserStats;
 }

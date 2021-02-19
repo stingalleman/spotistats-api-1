@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="assets/css/index.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+      defer
+    ></script>
+    <script src="assets/js/index.js" defer></script>
+    <title>Import data into Spotistats</title>
+  </head>
+  <body>
+    <div id="overlay">
+      <div class="loader"></div>
+    </div>
+    <header class="container">
+      <h1 class="float-left">Import data</h1>
+      <img
+        src="assets/image/icon.png"
+        alt="Spotistats Logo"
+        class="float-right"
+        height="50"
+        width="50"
+      />
+    </header>
+    <main class="container">
+      <section class="flex-container">
+        <div id="auth-check" class="step-current">
+          <div class="text-center">
+            <div class="authcode-wrapper">
+              <h1>Authenticate</h1>
+              <label for="authcode" class="half-witdh"
+                >Please login with Spotify to continue </label
+              ><br />
+              <br />
+              <button class="spotistats-button ripple mt-5" id="authcode-check">
+                Login
+              </button>
+            </div>
+          </div>
+          <br />
+        </div>
+        <div class="my-5"></div>
+        <form
+          method="post"
+          action=""
+          enctype="multipart/form-data"
+          id="upload-files"
+          class="step-hidden"
+        >
+          <h1>Select your all .JSON's files</h1>
+          <p>
+            Make sure to select all files you'd like to be imported at once!
+          </p>
+          <input type="file" id="files" name="files[]" multiple /><br />
+          <input type="text" name="uid" value="sjoerdgaatwakawaka" hidden />
+          <br />
+          <input
+            type="button"
+            class="spotistats-button ripple"
+            id="submit"
+            value="Upload"
+          />
+        </form>
+        <div class="my-5"></div>
+        <div id="complete" class="step-hidden">
+          <div class="text-center">
+            <div class="authcode-wrapper">
+              <h1>Success!</h1>
+              <p id="streams-imported" class="half-witdh"></p>
+              <p class="half-witdh"></p>Please open your Spotistats and click "import data" on the
+                settings page.
+              </p>
+            </div>
+          </div>
+          <br />
+        </div>
+      </section>
+      <div class="divider"></div>
+      <section>
+        <h1>Guide</h1>
+        <br />
+        <article>
+          <h3>1. Request your data from Spotify</h3>
+          <p>
+            Navigate to
+            <a href="https://www.spotify.com/account/privacy" target="blank"
+              >spotify.com/account</a
+            >
+            and scroll down to "Download your data", and click the "Request"
+            button.
+          </p>
+          <img
+            src="assets/image/step-1.png"
+            alt="Step 1 image"
+            class="img-step"
+          />
+        </article>
+        <article>
+          <h3>2. Wait till your data arrives in your email</h3>
+          <p>As Spotify states:</p>
+          <blockquote>
+            We are preparing your data file. This can take up to 30 days to
+            complete.
+            <br />
+            <br />
+            You'll receive an email when it is ready to download.
+          </blockquote>
+        </article>
+        <article class="article-padding">
+          <h3>3. Extract the .ZIP file</h3>
+          <p>
+            Spotify delivers your data in a .ZIP file, which includes a lot of
+            personal information which you dont want to share with others.
+            Spotistats only needs the files named like
+            <code>StreamingHistory_X.json</code>
+          </p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
