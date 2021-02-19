@@ -1,21 +1,21 @@
-import { UserTrack } from "./UserTrack";
+// import { UserTrack } from "./UserTrack";
 import { User } from "./User";
 import { UserSettings } from "./UserSettings";
-import { UserStats } from "./UserStats";
+// import { UserStats } from "./UserStats";
 // import { Track } from "./Track";
 
 export const TypeormEntities = [
-  UserTrack,
+  // UserTrack,
   User,
   UserSettings,
-  UserStats,
+  // UserStats,
   // Track,
 ];
 
 export {
-  UserTrack,
+  // UserTrack,
   User,
   UserSettings,
-  UserStats,
+  // UserStats,
   // Track
 };

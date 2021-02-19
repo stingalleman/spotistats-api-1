@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="assets/css/dropzone.min.css" />
     <link rel="stylesheet" href="assets/css/index.css" />
-    <script src="assets/js/dropzone.min.js" defer></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+      defer
+    ></script>
+    <!-- <script src="assets/js/dropzone.min.js" defer></script> -->
     <script src="assets/js/index.js" defer></script>
     <title>Import data into Spotistats</title>
   </head>
@@ -79,13 +83,31 @@
           <br />
         </div>
 
-        <form
+        <!-- <form action="http://localhost:8123/upload" method="POST">
+          <label for="files">Select your .JSON's files</label><br />
+          <input type="file" id="files" name="files" multiple /><br /><br />
+          <input type="submit" />
+        </form> -->
+        <style type="text/css">
+          #preview img {
+            margin: 5px;
+          }
+        </style>
+        <form method="post" action="" enctype="multipart/form-data" id="test">
+          <input type="file" id="files" name="files[]" multiple /><br />
+          <input type="text" name="uid" value="sjoerdgaatwakawaka" hidden />
+          <input type="button" id="submit" value="Upload" />
+        </form>
+
+        <!-- Preview -->
+        <div id="preview"></div>
+        <!-- <form
           action="http://localhost:8123/upload"
           class="dropzone"
           id="dropzone"
         >
-          <!-- <h2 class="auth-first">Authenticate first</h2> -->
-        </form>
+          <h2 class="auth-first">Authenticate first</h2>
+        </form> -->
         <!-- style="display: none" -->
         <!-- <div class="drop">
           <h2>Drop your .JSON's here</h2>

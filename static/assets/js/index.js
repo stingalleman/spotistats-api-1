@@ -14,20 +14,77 @@
 //   `,
 // };
 
-var myDropzone = new Dropzone("dropzone", {
-  url: "siduhashdas",
-  paramName: "file",
-  maxFilesize: 2,
-  accept: function (file, done) {
-    if (!file.name.startsWith("StreamingHistory")) {
-      done("Naha, you don't.");
-    } else {
-      done();
+// var myDropzone = new Dropzone("#dropzone", {
+//   url: "siduhashdas",
+//   paramName: "file",
+//   maxFilesize: 2,
+//   parallelUploads: 2,
+//   uploadMultiple: true,
+//   acceptedFiles: ["application/JSON"],
+//   accept: function (file, done) {
+//     if (!file.name.startsWith("StreamingHistory")) {
+//       done("Naha, you don't.");
+//     } else {
+//       done();
+//     }
+//   },
+//   previewTemplate: `
+//             <h2 class="auth-first">Authenticate first</h2>
+//       `,
+// });
+
+// Dropzone.options.dropzone = {
+//   url: "siduhashdas",
+//   paramName: "file",
+//   maxFilesize: 2,
+//   parallelUploads: 2,
+//   uploadMultiple: true,
+//   acceptedFiles: ["application/JSON"],
+//   accept: function (file, done) {
+//     if (!file.name.startsWith("StreamingHistory")) {
+//       done("Naha, you don't.");
+//     } else {
+//       done();
+//     }
+//   },
+//   previewTemplate: `
+//               <h2 class="auth-first">Authenticate first</h2>
+//         `,
+// };
+
+$(document).ready(function () {
+  $("#submit").click(function () {
+    var form_data = new FormData();
+    form_data.append("uid", "sjoerdgaatwakawaka");
+
+    // Read selected files
+    var totalfiles = document.getElementById("files").files.length;
+    for (var index = 0; index < totalfiles; index++) {
+      form_data.append(
+        "files[]",
+        document.getElementById("files").files[index]
+      );
     }
-  },
-  previewTemplate: `
-            <h2 class="auth-first">Authenticate first</h2>
-      `,
+
+    // AJAX request
+    $.ajax({
+      url: "../upload",
+      type: "post",
+      data: form_data,
+      dataType: "json",
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        // for (var index = 0; index < response.length; index++) {
+        //   var src = response[index];
+        //   // Add img element in <div id='preview'>
+        //   $("#preview").append(
+        //     '<img src="' + src + '" width="200px;" height="200px">'
+        //   );
+        // }
+      },
+    });
+  });
 });
 
 function getCodeBoxElement(index) {

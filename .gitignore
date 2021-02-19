@@ -7,3 +7,5 @@ temp/
 dist/
 .env
 .DS_STORE
+data/
+spotistats-a49da-a4f206dcbf07.json

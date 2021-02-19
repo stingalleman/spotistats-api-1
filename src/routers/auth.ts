@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import SpotifyWebApi from "spotify-web-api-node";
 import jwt from "jsonwebtoken";
-import { User, UserSettings, UserStats } from "../entities";
+import { User, UserSettings } from "../entities";
 import { resetSpotifyApiTokens } from "../utils/spotify-api.utils";
 
 const authRouter = Router();
@@ -79,10 +79,6 @@ authRouter.get("/v1/auth/callback", async (req: Request, res: Response) => {
         displayName: displayName,
         // streams: [],
         disabled: false,
-      });
-
-      user.stats = UserStats.create({
-        totalSeconds: BigInt(0),
       });
     }
 
